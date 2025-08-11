@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TripCard from './components/TripCard';
 import RecentReceipts from './components/RecentReceipts';
 import CategoryBreakdown from './components/CategoryBreakdown';
@@ -13,6 +13,7 @@ import PopularStores from './ranking/PopularStores';
 import PopularDestinations from './ranking/PopularDestinations';
 import RegionalItems from './ranking/RegionalItems';
 import ReviewsAndTips from './ranking/ReviewsAndTips';
+import { tripStorage, receiptStorage } from './utils/mockData';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');

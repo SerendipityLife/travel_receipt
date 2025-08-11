@@ -1,85 +1,101 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { receiptStorage } from '../../utils/mockData';
 
 interface ReceiptDetailProps {
   receiptId: string;
 }
 
 export default function ReceiptDetail({ receiptId }: ReceiptDetailProps) {
-  const [receipt] = useState({
-    id: 1,
-    store: "ドン・キホーテ 渋谷店",
-    storeKr: "돈키호테 시부야점",
-    tel: "03-5428-4086",
-    address: "東京都渋谷区宇田川町28-6",
-    addressKr: "도쿄도 시부야구 우다가와초 28-6",
-    date: "2024-11-16",
-    time: "14:32:18",
-    receiptNo: "0005",
-    cashierNo: "013-018",
-    items: [
-      {
-        code: "4902102070744",
-        name: "キットカット 抹茶",
-        nameKr: "킷캣 말차",
-        price: 298,
-        priceKr: 2634,
-        quantity: 2,
-        tax: "外税"
-      },
-      {
-        code: "4901330540074",
-        name: "ポッキー チョコレート",
-        nameKr: "포키 초콜릿",
-        price: 158,
-        priceKr: 1397,
-        quantity: 1,
-        tax: "外税"
-      },
-      {
-        code: "4901777317109",
-        name: "ラムネ サイダー",
-        nameKr: "라무네 사이다",
-        price: 120,
-        priceKr: 1061,
-        quantity: 3,
-        tax: "内税"
-      },
-      {
-        code: "4902555217840",
-        name: "じゃがりこ サラダ",
-        nameKr: "자가리코 샐러드",
-        price: 160,
-        priceKr: 1414,
-        quantity: 1,
-        tax: "外税"
-      },
-      {
-        code: "4901330915728",
-        name: "ハイチュウ グレープ",
-        nameKr: "하이츄 포도",
-        price: 138,
-        priceKr: 1220,
-        quantity: 2,
-        tax: "外税"
-      }
-    ],
-    subtotal: 1392,
-    subtotalKr: 12307,
-    tax: 111,
-    taxKr: 981,
-    total: 1503,
-    totalKr: 13288,
-    exchangeRate: 8.84,
-    paymentMethod: "現金",
-    paymentMethodKr: "현금",
-    change: 497,
-    changeKr: 4393
-  });
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [receipt, setReceipt] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Get receipt data from storage on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const receiptData = receiptStorage.getById(receiptId);
+      setReceipt(receiptData);
+      setIsLoading(false);
+    }
+  }, [receiptId]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!receipt) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">영수증을 찾을 수 없습니다</h1>
+          <Link href="/receipts" className="text-blue-600 hover:text-blue-700">
+            영수증 목록으로 돌아가기
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const [showOriginal, setShowOriginal] = useState(false);
+
+  // Delete receipt function
+  const handleDeleteReceipt = () => {
+    if (!receiptId) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = receiptStorage.delete(receiptId);
+      if (success) {
+        // Redirect to receipts list after successful deletion
+        router.push('/receipts');
+      } else {
+        alert('영수증 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Failed to delete receipt:', error);
+      alert('영수증 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  // Update receipt function
+  const handleUpdateReceipt = (updatedData: any) => {
+    if (!receiptId) return;
+    
+    setIsUpdating(true);
+    try {
+      const success = receiptStorage.update(receiptId, updatedData);
+      if (success) {
+        // Refresh the page to show updated data
+        window.location.reload();
+      } else {
+        alert('영수증 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Failed to update receipt:', error);
+      alert('영수증 수정에 실패했습니다.');
+    } finally {
+      setIsUpdating(false);
+      setShowEditModal(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -260,15 +276,132 @@ export default function ReceiptDetail({ receiptId }: ReceiptDetailProps) {
 
         {/* 액션 버튼들 */}
         <div className="mt-6 grid grid-cols-2 gap-3">
-          <button className="bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 transition-colors !rounded-button">
+          <button 
+            onClick={() => setShowEditModal(true)}
+            disabled={isUpdating}
+            className="bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 transition-colors !rounded-button disabled:opacity-50"
+          >
             <i className="ri-edit-line mr-2"></i>
-            수정하기
+            {isUpdating ? '수정 중...' : '수정하기'}
           </button>
-          <button className="bg-red-50 border border-red-200 text-red-600 py-3 px-4 rounded-xl font-medium hover:bg-red-100 transition-colors !rounded-button">
+          <button 
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={isDeleting}
+            className="bg-red-50 border border-red-200 text-red-600 py-3 px-4 rounded-xl font-medium hover:bg-red-100 transition-colors !rounded-button disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <i className="ri-delete-bin-line mr-2"></i>
-            삭제하기
+            {isDeleting ? '삭제 중...' : '삭제하기'}
           </button>
         </div>
+
+        {/* 삭제 확인 모달 */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">영수증 삭제</h3>
+              <p className="text-gray-600 mb-6">
+                이 영수증을 삭제하시겠습니까? 삭제하면 예산에서도 해당 금액이 차감됩니다.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleDeleteReceipt}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? '삭제 중...' : '삭제'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 수정 모달 */}
+        {showEditModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">영수증 수정</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                  <select 
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    defaultValue={receipt.category || '쇼핑'}
+                  >
+                    <option value="음식">음식</option>
+                    <option value="교통">교통</option>
+                    <option value="쇼핑">쇼핑</option>
+                    <option value="숙박">숙박</option>
+                    <option value="관광">관광</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">매장 유형</label>
+                  <select 
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    defaultValue={receipt.storeType || '편의점/잡화점'}
+                  >
+                    <option value="편의점/잡화점">편의점/잡화점</option>
+                    <option value="음식점">음식점</option>
+                    <option value="카페">카페</option>
+                    <option value="백화점">백화점</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">상품 유형</label>
+                  <div className="space-y-2">
+                    {['과자', '음료', '간식', '생활용품', '의류', '전자제품'].map((type) => (
+                      <label key={type} className="flex items-center">
+                        <input 
+                          type="checkbox" 
+                          className="mr-2"
+                          defaultChecked={receipt.productTypes?.includes(type)}
+                        />
+                        <span className="text-sm text-gray-700">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  disabled={isUpdating}
+                  className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    // Get form data and update
+                    const category = (document.querySelector('select') as HTMLSelectElement)?.value;
+                    const storeType = (document.querySelectorAll('select')[1] as HTMLSelectElement)?.value;
+                    const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                    const productTypes = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).nextElementSibling?.textContent || '');
+                    
+                    handleUpdateReceipt({
+                      category,
+                      storeType,
+                      productTypes
+                    });
+                  }}
+                  disabled={isUpdating}
+                  className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {isUpdating ? '수정 중...' : '수정'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 카테고리 및 태그 */}
         <div className="mt-6 bg-white rounded-2xl p-6 shadow-sm">

@@ -111,8 +111,8 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-sm">
                   <div>
-                    <div className="text-[10px] text-gray-600 font-medium">총 지출</div>
-                    <div className="text-xs font-bold text-gray-900">
+                    <div className="text-[9px] text-gray-600 font-medium leading-tight">총 지출</div>
+                    <div className="text-[10px] font-bold text-gray-900 leading-tight break-words">
                       ₩{totalAmount.toLocaleString()}
                     </div>
                   </div>
@@ -125,12 +125,12 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
           <div className="flex-1 space-y-3">
             {categories.map((category, index) => (
               <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${category.color} shadow-sm`}></div>
-                  <span className="text-gray-700 font-medium text-sm">{category.name}</span>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={`w-3 h-3 rounded-full ${category.color} shadow-sm flex-shrink-0`}></div>
+                  <span className="text-gray-700 font-medium text-xs leading-tight truncate">{category.name}</span>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-gray-900 text-sm">₩{category.amount.toLocaleString()}</div>
+                <div className="text-right flex-shrink-0 ml-2">
+                  <div className="font-bold text-gray-900 text-xs leading-tight break-words">₩{category.amount.toLocaleString()}</div>
                 </div>
               </div>
             ))}

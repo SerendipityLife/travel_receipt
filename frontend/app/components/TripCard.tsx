@@ -356,20 +356,20 @@ export default function TripCard({ trip, trips = [], currentIndex = 0, onIndexCh
                 ></div>
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-white/60 text-xs">₩{trip.budget.spent.toLocaleString()}</span>
-                <span className="text-white/60 text-xs">₩{trip.budget.total.toLocaleString()}</span>
+                <span className="text-white/60 text-xs leading-tight break-words">₩{trip.budget.spent.toLocaleString()}</span>
+                <span className="text-white/60 text-xs leading-tight break-words">₩{trip.budget.total.toLocaleString()}</span>
               </div>
             </div>
           )}
 
           <div className="flex justify-between items-center">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">₩{trip.totalAmount.toLocaleString()}</div>
-              <div className="text-xs text-white/60">총 지출 금액</div>
+            <div className="text-center flex-1">
+              <div className="text-lg font-bold text-white mb-1 leading-tight break-words">₩{trip.totalAmount.toLocaleString()}</div>
+              <div className="text-xs text-white/60 leading-tight">총 지출 금액</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white/90 mb-1">₩{trip.days > 0 ? Math.round(trip.totalAmount / trip.days).toLocaleString() : '0'}</div>
-              <div className="text-xs text-white/60">일평균 지출</div>
+            <div className="text-center flex-1">
+              <div className="text-lg font-bold text-white/90 mb-1 leading-tight break-words">₩{trip.days > 0 ? Math.round(trip.totalAmount / trip.days).toLocaleString() : '0'}</div>
+              <div className="text-xs text-white/60 leading-tight">일평균 지출</div>
             </div>
           </div>
 

@@ -36,27 +36,27 @@ export default function RecentReceipts({ receipts, onAddReceipt }: RecentReceipt
             <Link key={receipt.id} href={`/receipt/${receipt.id}`}>
               <div className="p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
                 <div className="flex items-start justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900 text-lg leading-tight">{receipt.store}</h4>
-                  <span className="text-xl font-bold text-gray-900">₩{receipt.amount.toLocaleString()}</span>
+                  <h4 className="font-semibold text-gray-900 text-base leading-tight flex-1 mr-3 break-words">{receipt.store}</h4>
+                  <span className="text-base font-bold text-gray-900 leading-tight break-words flex-shrink-0">₩{receipt.amount.toLocaleString()}</span>
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                <div className="flex items-center gap-3 text-xs text-gray-600 mb-3 flex-wrap">
                   <div className="flex items-center gap-1">
-                    <i className="ri-calendar-line text-sm"></i>
-                    <span>{receipt.date}</span>
+                    <i className="ri-calendar-line text-xs"></i>
+                    <span className="leading-tight">{receipt.date}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <i className="ri-time-line text-sm"></i>
-                    <span>{receipt.time}</span>
+                    <i className="ri-time-line text-xs"></i>
+                    <span className="leading-tight">{receipt.time}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <i className="ri-shopping-bag-line text-sm"></i>
-                    <span>{receipt.items}개</span>
+                    <i className="ri-shopping-bag-line text-xs"></i>
+                    <span className="leading-tight">{receipt.items}개</span>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-start">
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 leading-tight">
                     {receipt.category}
                   </span>
                 </div>

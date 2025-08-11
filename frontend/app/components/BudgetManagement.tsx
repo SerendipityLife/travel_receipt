@@ -114,34 +114,31 @@ export default function BudgetManagement({ budget, onBudgetUpdate }: BudgetManag
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-600">진행률</span>
-                <span className={`text-sm font-bold ${isTotalOverBudget ? 'text-red-600' : 'text-blue-600'}`}>
-                  {Math.round(totalProgressPercentage)}%
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-bold ${isTotalOverBudget ? 'text-red-600' : 'text-blue-600'}`}>
+                    {Math.round(totalProgressPercentage)}%
+                  </span>
+                  <span className="text-xs text-gray-500">|</span>
+                  <span className={`text-xs font-medium ${budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    잔액 ₩{budget.remaining.toLocaleString()}
+                  </span>
+                </div>
               </div>
               
-              <div className="w-full bg-white/60 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    isTotalOverBudget ? 'bg-red-500' : totalProgressPercentage > 80 ? 'bg-yellow-500' : 'bg-gradient-to-r from-blue-500 to-purple-500'
-                  }`}
-                  style={{ width: `${Math.min(totalProgressPercentage, 100)}%` }}
-                ></div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2 text-center mt-3">
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">총예산</div>
-                  <div className="text-sm font-bold text-gray-900">₩{budget.total.toLocaleString()}</div>
+              <div className="relative">
+                <div className="w-full bg-white/60 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      isTotalOverBudget ? 'bg-red-500' : totalProgressPercentage > 80 ? 'bg-yellow-500' : 'bg-gradient-to-r from-blue-500 to-purple-500'
+                    }`}
+                    style={{ width: `${Math.min(totalProgressPercentage, 100)}%` }}
+                  ></div>
                 </div>
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">사용금액</div>
-                  <div className="text-sm font-bold text-blue-600">₩{budget.spent.toLocaleString()}</div>
-                </div>
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">사용가능금액</div>
-                  <div className={`text-sm font-bold ${budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ₩{budget.remaining.toLocaleString()}
-                  </div>
+                
+                {/* 금액 표시 */}
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-600 leading-tight">₩{budget.spent.toLocaleString()}</span>
+                  <span className="text-xs text-gray-600 leading-tight">₩{budget.total.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -159,71 +156,37 @@ export default function BudgetManagement({ budget, onBudgetUpdate }: BudgetManag
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-600">진행률</span>
-                <span className={`text-sm font-bold ${isDailyOverBudget ? 'text-red-600' : 'text-green-600'}`}>
-                  {Math.round(dailyProgressPercentage)}%
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-bold ${isDailyOverBudget ? 'text-red-600' : 'text-green-600'}`}>
+                    {Math.round(dailyProgressPercentage)}%
+                  </span>
+                  <span className="text-xs text-gray-500">|</span>
+                  <span className={`text-xs font-medium ${todayRemainingBudget > 0 ? 'text-green-600' : 'text-gray-500'}`}>
+                    잔액 ₩{todayRemainingBudget.toLocaleString()}
+                  </span>
+                </div>
               </div>
               
-              <div className="w-full bg-white/60 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    isDailyOverBudget ? 'bg-red-500' : dailyProgressPercentage > 80 ? 'bg-yellow-500' : 'bg-gradient-to-r from-green-500 to-teal-500'
-                  }`}
-                  style={{ width: `${Math.min(dailyProgressPercentage, 100)}%` }}
-                ></div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2 text-center mt-3">
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">총예산</div>
-                  <div className="text-sm font-bold text-gray-900">₩{budget.daily.toLocaleString()}</div>
+              <div className="relative">
+                <div className="w-full bg-white/60 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      isDailyOverBudget ? 'bg-red-500' : dailyProgressPercentage > 80 ? 'bg-yellow-500' : 'bg-gradient-to-r from-green-500 to-teal-500'
+                    }`}
+                    style={{ width: `${Math.min(dailyProgressPercentage, 100)}%` }}
+                  ></div>
                 </div>
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">사용금액</div>
-                  <div className="text-sm font-bold text-green-600">₩{dailySpentAverage.toLocaleString()}</div>
-                </div>
-                <div className="bg-white/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-600 mb-1">사용가능금액</div>
-                  <div className={`text-sm font-bold ${todayRemainingBudget > 0 ? 'text-green-600' : 'text-gray-500'}`}>
-                    ₩{todayRemainingBudget.toLocaleString()}
-                  </div>
+                
+                {/* 금액 표시 */}
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-600 leading-tight">₩{dailySpentAverage.toLocaleString()}</span>
+                  <span className="text-xs text-gray-600 leading-tight">₩{budget.daily.toLocaleString()}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 예산 요약 정보 */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-white rounded-lg p-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <i className="ri-wallet-3-line text-blue-600 text-sm"></i>
-                </div>
-                <div className={`text-lg font-bold mb-1 ${budget.remaining >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                  ₩{budget.remaining.toLocaleString()}
-                </div>
-                <div className="text-xs text-gray-500">총 남은 예산</div>
-              </div>
-              
-              <div className="bg-white rounded-lg p-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <i className="ri-calendar-todo-line text-green-600 text-sm"></i>
-                </div>
-                <div className={`text-lg font-bold mb-1 ${todayRemainingBudget > 0 ? 'text-green-600' : 'text-gray-500'}`}>
-                  ₩{todayRemainingBudget.toLocaleString()}
-                </div>
-                <div className="text-xs text-gray-500">오늘 남은 예산</div>
-              </div>
-              
-              <div className="bg-white rounded-lg p-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <i className="ri-time-line text-purple-600 text-sm"></i>
-                </div>
-                <div className="text-lg font-bold text-purple-600 mb-1">{budget.daysLeft}일</div>
-                <div className="text-xs text-gray-500">남은 기간</div>
-              </div>
-            </div>
-          </div>
+
 
           {/* 예산 알림 */}
           {isTotalOverBudget && (

@@ -10,9 +10,10 @@ export const getTrips = async (req: Request, res: Response) => {
     }
 
     const trips = await Trip.find({ userId }).sort({ createdAt: -1 });
-    res.json(trips);
+    return res.json(trips);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -27,9 +28,10 @@ export const getTrip = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    res.json(trip);
+    return res.json(trip);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -49,9 +51,10 @@ export const createTrip = async (req: Request, res: Response) => {
     const trip = new Trip(tripData);
     await trip.save();
 
-    res.status(201).json(trip);
+    return res.status(201).json(trip);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -71,9 +74,10 @@ export const updateTrip = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    res.json(trip);
+    return res.json(trip);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -88,9 +92,10 @@ export const deleteTrip = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    res.json({ message: 'Trip deleted successfully' });
+    return res.json({ message: 'Trip deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -113,9 +118,10 @@ export const addReceipt = async (req: Request, res: Response) => {
     trip.expenses.receipts = trip.receipts.length;
 
     await trip.save();
-    res.json(trip);
+    return res.json(trip);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };
 
@@ -135,8 +141,9 @@ export const updateBudget = async (req: Request, res: Response) => {
     trip.budget.remaining = trip.budget.total - trip.budget.spent;
 
     await trip.save();
-    res.json(trip);
+    return res.json(trip);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ message: 'Server error', error: errorMessage });
   }
 };

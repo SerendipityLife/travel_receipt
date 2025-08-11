@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // 개발 환경에서는 정적 내보내기 비활성화
+  // output: "export",
   images: {
     unoptimized: true,
   },
