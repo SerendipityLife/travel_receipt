@@ -39,9 +39,25 @@ export interface Receipt {
   updatedAt: string;
 }
 
+export interface TripMember {
+  id: string;
+  name: string;
+  permission: 'editor' | 'viewer';
+  joinedAt: string;
+  inviteCode: string;
+}
+
+export interface TripInviteCode {
+  tripId: string;
+  code: string;
+  createdAt: string;
+  isActive: boolean;
+}
+
 export interface Trip {
   _id: string;
   userId: string;
+  creatorId: string; // 여행 생성자 ID
   title: string;
   startDate: string;
   endDate: string;
@@ -57,6 +73,7 @@ export interface Trip {
     receipts: number;
   };
   receipts: string[];
+  members?: TripMember[];
   createdAt: string;
   updatedAt: string;
 }
@@ -171,6 +188,7 @@ const mockTrips: Trip[] = [
   {
     _id: 'trip1',
     userId: 'user1',
+    creatorId: 'user1', // 여행 생성자 ID
     title: '오사카 맛집 투어',
     startDate: '2024-11-15',
     endDate: '2024-11-18',
@@ -186,6 +204,22 @@ const mockTrips: Trip[] = [
       receipts: 2
     },
     receipts: ['1', '2'],
+    members: [
+      {
+        id: '1',
+        name: '김친구',
+        permission: 'editor',
+        joinedAt: '2024-11-10T10:00:00Z',
+        inviteCode: 'TRIP123'
+      },
+      {
+        id: '2',
+        name: '이동행',
+        permission: 'viewer',
+        joinedAt: '2024-11-12T14:30:00Z',
+        inviteCode: 'TRIP456'
+      }
+    ],
     createdAt: '2024-11-15T00:00:00.000Z',
     updatedAt: '2024-11-16T14:32:18.000Z'
   }
@@ -367,5 +401,151 @@ export const tripStorage = {
         console.error('localStorage access error:', error);
       }
     }
+  },
+
+  // 초대코드 및 동행자 관리 함수들
+  generateInviteCode: (tripId: string): string => {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot generate invite code on server side');
+    }
+    
+    // 8자리 랜덤 코드 생성 (숫자 + 대문자)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    return result;
+  },
+
+  joinTripWithCode: (inviteCode: string, name: string, permission: 'editor' | 'viewer'): TripMember => {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot join trip on server side');
+    }
+    
+    const trips = tripStorage.getAll();
+    const trip = trips.find(t => t._id === inviteCode.substring(0, 4) || t.members?.some(m => m.inviteCode === inviteCode));
+    
+    if (!trip) {
+      throw new Error('Invalid invite code');
+    }
+    
+    // 이미 참여한 멤버인지 확인 (이름으로)
+    if (trip.members?.some(member => member.name === name)) {
+      throw new Error('Member already joined');
+    }
+    
+    const newMember: TripMember = {
+      id: Date.now().toString(),
+      name: name,
+      permission: permission,
+      joinedAt: new Date().toISOString(),
+      inviteCode: inviteCode
+    };
+    
+    if (!trip.members) {
+      trip.members = [];
+    }
+    
+    trip.members.push(newMember);
+    trip.updatedAt = new Date().toISOString();
+    
+    try {
+      localStorage.setItem(TRIPS_KEY, JSON.stringify(trips));
+    } catch (error) {
+      console.error('localStorage access error:', error);
+    }
+    
+    return newMember;
+  },
+
+  removeMember: (tripId: string, memberId: string): boolean => {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot remove member on server side');
+    }
+    
+    const trips = tripStorage.getAll();
+    const trip = trips.find(t => t._id === tripId);
+    
+    if (!trip || !trip.members) {
+      return false;
+    }
+    
+    const initialLength = trip.members.length;
+    trip.members = trip.members.filter(member => member.id !== memberId);
+    
+    if (trip.members.length !== initialLength) {
+      trip.updatedAt = new Date().toISOString();
+      
+      try {
+        localStorage.setItem(TRIPS_KEY, JSON.stringify(trips));
+      } catch (error) {
+        console.error('localStorage access error:', error);
+      }
+      
+      return true;
+    }
+    
+    return false;
+  },
+
+  updateMemberPermission: (tripId: string, memberId: string, permission: 'editor' | 'viewer'): boolean => {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot update member permission on server side');
+    }
+    
+    const trips = tripStorage.getAll();
+    const trip = trips.find(t => t._id === tripId);
+    
+    if (!trip || !trip.members) {
+      return false;
+    }
+    
+    const member = trip.members.find(m => m.id === memberId);
+    if (!member) {
+      return false;
+    }
+    
+    member.permission = permission;
+    trip.updatedAt = new Date().toISOString();
+    
+    try {
+      localStorage.setItem(TRIPS_KEY, JSON.stringify(trips));
+    } catch (error) {
+      console.error('localStorage access error:', error);
+    }
+    
+    return true;
+  },
+
+  updateMemberInfo: (tripId: string, memberId: string, name: string, permission: 'editor' | 'viewer'): boolean => {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot update member info on server side');
+    }
+    
+    const trips = tripStorage.getAll();
+    const trip = trips.find(t => t._id === tripId);
+    
+    if (!trip || !trip.members) {
+      return false;
+    }
+    
+    const member = trip.members.find(m => m.id === memberId);
+    if (!member) {
+      return false;
+    }
+    
+    member.name = name;
+    member.permission = permission;
+    trip.updatedAt = new Date().toISOString();
+    
+    try {
+      localStorage.setItem(TRIPS_KEY, JSON.stringify(trips));
+    } catch (error) {
+      console.error('localStorage access error:', error);
+    }
+    
+    return true;
   }
 };

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import TripCard from './components/TripCard';
 import RecentReceipts from './components/RecentReceipts';
 import CategoryBreakdown from './components/CategoryBreakdown';
@@ -13,15 +14,21 @@ import PopularStores from './ranking/PopularStores';
 import PopularDestinations from './ranking/PopularDestinations';
 import RegionalItems from './ranking/RegionalItems';
 import ReviewsAndTips from './ranking/ReviewsAndTips';
-import { tripStorage, receiptStorage } from './utils/mockData';
+import { tripStorage, receiptStorage, TripMember } from './utils/mockData';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
   const [rankingTab, setRankingTab] = useState<'products' | 'stores' | 'destinations' | 'regional' | 'reviews'>('products');
+  const searchParams = useSearchParams();
+  
+  // 현재 사용자 ID (실제로는 로그인 시스템에서 가져와야 함)
+  // 테스트를 위해 user1로 변경 (생성자 역할 테스트)
+  const currentUserId = 'user1';
 
   const [trips] = useState([
     {
       id: 1,
+      creatorId: "user1", // 여행 생성자 ID
       title: "오사카 맛집 투어",
       date: "2024-11-15 ~ 2024-11-18",
       totalAmount: 89200,
@@ -45,6 +52,22 @@ export default function Home() {
         remaining: 30800,
         daysLeft: 4
       },
+      members: [
+        {
+          id: "1",
+          name: "김친구",
+          permission: "editor" as const,
+          joinedAt: "2024-11-10T10:00:00Z",
+          inviteCode: "TRIP123"
+        },
+        {
+          id: "2",
+          name: "이동행",
+          permission: "viewer" as const,
+          joinedAt: "2024-11-12T14:30:00Z",
+          inviteCode: "TRIP456"
+        }
+      ],
       receipts: [
         {
           id: 1,
@@ -77,6 +100,7 @@ export default function Home() {
     },
     {
       id: 2,
+      creatorId: "user1", // 여행 생성자 ID
       title: "도쿄 쇼핑 여행",
       date: "2024-10-20 ~ 2024-10-24",
       totalAmount: 156800,
@@ -100,6 +124,7 @@ export default function Home() {
         remaining: 18200,
         daysLeft: 5
       },
+      members: [], // 동행자 없음
       receipts: [
         {
           id: 4,
@@ -123,6 +148,7 @@ export default function Home() {
     },
     {
       id: 3,
+      creatorId: "user2", // 다른 사용자가 생성한 여행 (동행자로 참여)
       title: "부산 바다 여행",
       date: "2024-09-12 ~ 2024-09-14",
       totalAmount: 45600,
@@ -146,6 +172,15 @@ export default function Home() {
         remaining: 14400,
         daysLeft: 3
       },
+      members: [
+        {
+          id: "3",
+          name: "현재사용자",
+          permission: "viewer" as const,
+          joinedAt: "2024-09-10T10:00:00Z",
+          inviteCode: "TRIP789"
+        }
+      ],
       receipts: [
         {
           id: 6,
@@ -222,9 +257,38 @@ export default function Home() {
 
   const currentTrip = availableTrips[currentTripIndex] || null;
 
+  // URL 쿼리 파라미터에서 tripIndex 확인하여 해당 여행 카드로 이동
+  // 새로고침 시에는 첫 번째 카드부터 보여주기 위해 sessionStorage 사용
+  useEffect(() => {
+    const tripIndexParam = searchParams.get('tripIndex');
+    
+    // 새로고침 여부 확인 (sessionStorage에 저장된 값이 없으면 새로고침으로 간주)
+    const lastTripIndex = sessionStorage.getItem('lastTripIndex');
+    
+    if (tripIndexParam && lastTripIndex !== null) {
+      // URL 파라미터가 있고 이전 세션이 있으면 해당 카드로 이동 (영수증 추가 후 돌아온 경우)
+      const tripIndex = parseInt(tripIndexParam);
+      if (!isNaN(tripIndex) && tripIndex >= 0 && tripIndex < availableTrips.length) {
+        setCurrentTripIndex(tripIndex);
+      }
+    } else {
+      // 새로고침이거나 처음 방문한 경우 첫 번째 카드로 설정
+      setCurrentTripIndex(0);
+      // URL에서 tripIndex 파라미터 제거
+      if (tripIndexParam) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tripIndex');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, availableTrips.length]);
+
   // 여행이 변경될 때 동행자 공유 데이터 초기화 (새로운 여행인 경우)
   const handleTripChange = (newIndex: number) => {
     setCurrentTripIndex(newIndex);
+    
+    // sessionStorage에 현재 여행 인덱스 저장
+    sessionStorage.setItem('lastTripIndex', newIndex.toString());
     
     // 새로운 여행으로 변경할 때 동행자와 공유 지출 초기화
     const newTrip = availableTrips[newIndex];
@@ -254,6 +318,110 @@ export default function Home() {
     } else {
       setCurrentTripIndex(0);
     }
+  };
+
+  // 초대코드 및 동행자 관리 함수들
+  const handleGenerateInviteCode = async (tripId: string): Promise<string> => {
+    try {
+      // tripStorage를 사용하여 초대코드 생성
+      const inviteCode = tripStorage.generateInviteCode(tripId);
+      
+      console.log(`초대코드 생성: ${tripId} -> ${inviteCode}`);
+      
+      return inviteCode;
+    } catch (error) {
+      console.error('초대코드 생성 실패:', error);
+      throw error;
+    }
+  };
+
+  const handleRemoveMember = (tripId: string, memberId: string) => {
+    try {
+      // tripStorage를 사용하여 동행자 제거
+      const success = tripStorage.removeMember(tripId, memberId);
+      
+      if (success) {
+        // UI 업데이트
+        setAvailableTrips(prev =>
+          prev.map(trip =>
+            trip.id.toString() === tripId
+              ? {
+                  ...trip,
+                  members: (trip.members || []).filter(member => member.id !== memberId)
+                }
+              : trip
+          )
+        );
+      }
+    } catch (error) {
+      console.error('동행자 제거 실패:', error);
+    }
+  };
+
+  const handleUpdateMemberPermission = (tripId: string, memberId: string, permission: 'editor' | 'viewer') => {
+    try {
+      // tripStorage를 사용하여 권한 업데이트
+      const success = tripStorage.updateMemberPermission(tripId, memberId, permission);
+      
+      if (success) {
+        // UI 업데이트
+        setAvailableTrips(prev =>
+          prev.map(trip =>
+            trip.id.toString() === tripId
+              ? {
+                  ...trip,
+                  members: (trip.members || []).map(member =>
+                    member.id === memberId
+                      ? { ...member, permission }
+                      : member
+                  )
+                }
+              : trip
+          )
+        );
+      }
+    } catch (error) {
+      console.error('권한 업데이트 실패:', error);
+    }
+  };
+
+  const handleUpdateMemberInfo = (tripId: string, memberId: string, name: string, permission: 'editor' | 'viewer') => {
+    try {
+      const success = tripStorage.updateMemberInfo(tripId, memberId, name, permission);
+      if (success) {
+        setAvailableTrips(prev =>
+          prev.map(trip =>
+            trip.id.toString() === tripId
+              ? {
+                  ...trip,
+                  members: (trip.members || []).map(member =>
+                    member.id === memberId
+                      ? { ...member, name, permission }
+                      : member
+                  )
+                }
+              : trip
+          )
+        );
+      }
+    } catch (error) {
+      console.error('멤버 정보 업데이트 실패:', error);
+    }
+  };
+
+  // 현재 사용자의 권한을 가져오는 함수
+  const getCurrentUserPermission = (trip: any): 'editor' | 'viewer' => {
+    // 여행 생성자인 경우
+    if (trip.creatorId === currentUserId) {
+      return 'editor';
+    }
+    
+    // 동행자인 경우 멤버 목록에서 권한 확인
+    const currentMember = trip.members?.find((member: any) => 
+      member.name === '현재사용자' || member.name === 'user1' || member.name === 'user2'
+    );
+    
+    return currentMember?.permission || 'viewer';
   };
 
   const handleAddTrip = () => {
@@ -363,6 +531,7 @@ export default function Home() {
 
     const newTrip = {
       id: Date.now(),
+      creatorId: currentUserId, // 현재 사용자가 생성자
       title: finalTitle,
       date: `${formatDate(start)} ~ ${formatDate(end)}`,
       totalAmount: 0,
@@ -382,6 +551,7 @@ export default function Home() {
         remaining: budget.total || 0,
         daysLeft: days
       },
+      members: [], // 새로운 여행은 빈 멤버 배열로 시작
       receipts: []
     };
 
@@ -516,10 +686,16 @@ export default function Home() {
           trips={availableTrips}
           currentIndex={currentTripIndex}
           onIndexChange={handleTripChange}
+          isCreator={currentTrip.creatorId === currentUserId}
+          onGenerateInviteCode={handleGenerateInviteCode}
+          onRemoveMember={handleRemoveMember}
+          onUpdateMemberPermission={handleUpdateMemberPermission}
+          onUpdateMemberInfo={handleUpdateMemberInfo}
         />
         <RecentReceipts 
           receipts={currentTrip?.receipts || []} 
           onAddReceipt={handleAddReceipt}
+          currentTripIndex={currentTripIndex}
         />
         <BudgetManagement
           budget={currentTrip.budget}
@@ -528,6 +704,8 @@ export default function Home() {
         <TravelSharing
           members={travelMembers}
           sharedExpenses={sharedExpenses}
+          isCreator={currentTrip.creatorId === currentUserId}
+          currentUserPermission={getCurrentUserPermission(currentTrip)}
           onAddMember={handleAddMember}
           onDeleteMember={handleDeleteMember}
         />

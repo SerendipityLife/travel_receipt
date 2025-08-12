@@ -15,15 +15,16 @@ interface Receipt {
 interface RecentReceiptsProps {
   receipts: Receipt[];
   onAddReceipt?: (receipt: Receipt) => void;
+  currentTripIndex?: number;
 }
 
-export default function RecentReceipts({ receipts, onAddReceipt }: RecentReceiptsProps) {
+export default function RecentReceipts({ receipts, onAddReceipt, currentTripIndex = 0 }: RecentReceiptsProps) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">최근 영수증</h3>
         <Link 
-          href="/receipt-scanner"
+          href={`/receipt-scanner?tripIndex=${currentTripIndex}`}
           className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors !rounded-button"
         >
           <i className="ri-add-line text-blue-600 text-lg"></i>
@@ -80,7 +81,7 @@ export default function RecentReceipts({ receipts, onAddReceipt }: RecentReceipt
           <h4 className="text-lg font-semibold text-gray-900 mb-2">아직 영수증이 없습니다</h4>
           <p className="text-gray-500 text-base mb-6">첫 번째 영수증을 추가해보세요!</p>
           <Link 
-            href="/receipt-scanner"
+            href={`/receipt-scanner?tripIndex=${currentTripIndex}`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors !rounded-button"
           >
             <i className="ri-camera-line text-xl"></i>

@@ -12,6 +12,7 @@ interface Member {
   spent: number;
   paid: number;
   balance: number;
+  permission?: 'editor' | 'viewer';
 }
 
 interface SharedExpense {
@@ -26,6 +27,8 @@ interface SharedExpense {
 interface TravelSharingProps {
   members: Member[];
   sharedExpenses: SharedExpense[];
+  isCreator?: boolean; // 여행 생성자인지 여부
+  currentUserPermission?: 'editor' | 'viewer'; // 현재 사용자의 권한
   onAddMember?: (name: string) => void;
   onDeleteMember?: (memberId: number, balanceTransfer?: { toMemberId: number; amount: number }) => void;
   onSettlement?: (fromId: number, toId: number, amount: number) => void;
@@ -34,6 +37,8 @@ interface TravelSharingProps {
 export default function TravelSharing({
   members = [],
   sharedExpenses = [],
+  isCreator = true, // 기본값은 생성자로 설정
+  currentUserPermission = 'editor', // 기본값은 편집자로 설정
   onAddMember,
   onDeleteMember,
   onSettlement
@@ -55,13 +60,17 @@ export default function TravelSharing({
     participants: [] as string[]
   });
   const [memberForm, setMemberForm] = useState({
-    name: ''
+    name: '',
+    permission: 'viewer' as 'editor' | 'viewer'
   });
   const [showDeleteExpenseConfirm, setShowDeleteExpenseConfirm] = useState(false);
   const [showBalanceTransferModal, setShowBalanceTransferModal] = useState(false);
   const [balanceTransferAmount, setBalanceTransferAmount] = useState(0);
   const [selectedTransferMember, setSelectedTransferMember] = useState<number | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+
+  // 권한 체크 함수 추가
+  const canEditMembers = isCreator || currentUserPermission === 'editor';
 
   const handleAddMember = () => {
     if (newMemberName.trim() && onAddMember) {
@@ -74,7 +83,8 @@ export default function TravelSharing({
   const handleEditMember = (member: Member) => {
     setEditingMember(member);
     setMemberForm({
-      name: member.name
+      name: member.name,
+      permission: member.permission || 'viewer'
     });
     setShowEditMember(true);
   };
@@ -84,12 +94,14 @@ export default function TravelSharing({
       // 멤버 정보 수정 로직
       console.log('멤버 정보 수정:', {
         id: editingMember.id,
-        name: memberForm.name
+        name: memberForm.name,
+        permission: memberForm.permission
       });
 
       // 폼 초기화
       setMemberForm({
-        name: ''
+        name: '',
+        permission: 'viewer'
       });
       setEditingMember(null);
       setShowEditMember(false);
@@ -113,7 +125,8 @@ export default function TravelSharing({
         setShowEditMember(false);
         setEditingMember(null);
         setMemberForm({
-          name: ''
+          name: '',
+          permission: 'viewer'
         });
       }
     }
@@ -140,7 +153,8 @@ export default function TravelSharing({
       setSelectedTransferMember(null);
       setBalanceTransferAmount(0);
       setMemberForm({
-        name: ''
+        name: '',
+        permission: 'viewer'
       });
     }
   };
@@ -228,12 +242,14 @@ export default function TravelSharing({
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">동행자 공유</h3>
         <div className="flex gap-1">
-          <button
-            onClick={() => setShowAddMember(true)}
-            className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors !rounded-button"
-          >
-            <i className="ri-user-add-line text-blue-600 text-sm"></i>
-          </button>
+          {canEditMembers && (
+            <button
+              onClick={() => setShowAddMember(true)}
+              className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors !rounded-button"
+            >
+              <i className="ri-user-add-line text-blue-600 text-sm"></i>
+            </button>
+          )}
           <button
             onClick={() => setShowAddExpense(true)}
             className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-200 transition-colors !rounded-button"
@@ -274,8 +290,10 @@ export default function TravelSharing({
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleEditMember(member)}
+                  className={`flex items-center justify-between p-3 bg-gray-50 rounded-xl transition-colors ${
+                    canEditMembers ? 'cursor-pointer hover:bg-gray-100' : 'cursor-default'
+                  }`}
+                  onClick={() => canEditMembers && handleEditMember(member)}
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -287,7 +305,18 @@ export default function TravelSharing({
                       {member.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 text-sm">{member.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900 text-sm">{member.name}</span>
+                        {member.permission && (
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            member.permission === 'editor' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {member.permission === 'editor' ? '편집자' : '뷰어'}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-gray-500 space-y-0.5">
                         <div>결제 ₩{member.paid.toLocaleString()}</div>
                         <div>지출 ₩{member.spent.toLocaleString()}</div>
@@ -338,14 +367,18 @@ export default function TravelSharing({
                 <i className="ri-team-line text-2xl text-gray-400"></i>
               </div>
               <h4 className="font-medium text-gray-900 mb-2">동행자가 없습니다</h4>
-              <p className="text-gray-500 text-sm mb-4">여행 동행자를 추가해보세요!</p>
-              <button
-                onClick={() => setShowAddMember(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors !rounded-button"
-              >
-                <i className="ri-user-add-line text-lg"></i>
-                동행자 추가
-              </button>
+              <p className="text-gray-500 text-sm mb-4">
+                {canEditMembers ? '여행 동행자를 추가해보세요!' : '동행자 관리 기능은 여행 생성자와 편집자만 사용할 수 있습니다.'}
+              </p>
+              {canEditMembers && (
+                <button
+                  onClick={() => setShowAddMember(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors !rounded-button"
+                >
+                  <i className="ri-user-add-line text-lg"></i>
+                  동행자 추가
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -464,6 +497,33 @@ export default function TravelSharing({
                   maxLength={20}
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">권한</label>
+                <select
+                  value={memberForm.permission}
+                  onChange={(e) => setMemberForm((prev) => ({ ...prev, permission: e.target.value as 'editor' | 'viewer' }))}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500"
+                >
+                  <option value="viewer">뷰어 (조회만 가능)</option>
+                  <option value="editor">편집자 (수정 가능)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 권한 설명 */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+              <h4 className="font-medium text-gray-900 mb-2">권한 설명</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                  <span><strong>편집자:</strong> 여행 정보 수정, 영수증 추가/삭제 가능</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                  <span><strong>뷰어:</strong> 여행 정보 조회만 가능</span>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-2">
@@ -472,7 +532,8 @@ export default function TravelSharing({
                   setShowEditMember(false);
                   setEditingMember(null);
                   setMemberForm({
-                    name: ''
+                    name: '',
+                    permission: 'viewer'
                   });
                 }}
                 className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors !rounded-button"

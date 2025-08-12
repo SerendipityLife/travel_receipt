@@ -93,6 +93,22 @@ export default function BottomNavigation({ onAddTrip, activeTab = 'home', onTabC
                   <div className="text-sm text-gray-500">사진으로 기록</div>
                 </div>
               </button>
+              
+              <button
+                onClick={() => {
+                  setShowAddMenu(false);
+                  router.push('/join');
+                }}
+                className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors text-left"
+              >
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <i className="ri-user-add-line text-lg text-purple-600"></i>
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">여행 참여</div>
+                  <div className="text-sm text-gray-500">초대코드로 참여</div>
+                </div>
+              </button>
             </div>
           </div>
         </>
