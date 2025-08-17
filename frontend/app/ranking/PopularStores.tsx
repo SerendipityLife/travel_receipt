@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 interface Store {
   id: number;
@@ -15,7 +15,15 @@ interface Store {
   image: string;
 }
 
-export default function PopularStores() {
+export default function PopularStores({
+  timeFilter,
+  customStart,
+  customEnd,
+}: {
+  timeFilter?: 'week' | 'month' | 'year' | 'custom';
+  customStart?: string;
+  customEnd?: string;
+}) {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedLocation, setSelectedLocation] = useState('전체');
 
@@ -102,6 +110,23 @@ export default function PopularStores() {
     (selectedLocation === '전체' || store.location === selectedLocation)
   );
 
+  const periodLabel = useMemo(() => {
+    switch (timeFilter) {
+      case 'week':
+        return '주간 랭킹';
+      case 'month':
+        return '월간 랭킹';
+      case 'year':
+        return '연간 랭킹';
+      case 'custom':
+        return customStart && customEnd
+          ? `${customStart} ~ ${customEnd} 랭킹`
+          : '사용자 지정 랭킹';
+      default:
+        return undefined;
+    }
+  }, [timeFilter, customStart, customEnd]);
+
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up': return 'ri-arrow-up-line text-green-500';
@@ -174,6 +199,7 @@ export default function PopularStores() {
       </div>
 
       <div className="text-sm text-gray-600">
+        {periodLabel ? `${periodLabel} · ` : ''}
         {filteredStores.length}개의 인기매장
       </div>
 

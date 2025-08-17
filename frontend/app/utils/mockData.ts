@@ -78,6 +78,20 @@ export interface Trip {
   updatedAt: string;
 }
 
+// Reviews
+export interface Review {
+  id: string;
+  userId: string;
+  productKey: string; // item code 우선, 없으면 정규화된 이름
+  productName: string;
+  productCode?: string;
+  rating: number; // 0.5 ~ 5.0
+  text: string; // 0~100 chars
+  receiptId?: string;
+  tripId?: string;
+  createdAt: string;
+}
+
 // Mock data
 const mockReceipts: Receipt[] = [
   {
@@ -228,6 +242,7 @@ const mockTrips: Trip[] = [
 // Local storage keys
 const RECEIPTS_KEY = 'travel_receipts';
 const TRIPS_KEY = 'travel_trips';
+const REVIEWS_KEY = 'travel_reviews';
 
 // Initialize local storage with mock data if empty
 const initializeStorage = () => {
@@ -240,6 +255,10 @@ const initializeStorage = () => {
     
     if (!localStorage.getItem(TRIPS_KEY)) {
       localStorage.setItem(TRIPS_KEY, JSON.stringify(mockTrips));
+    }
+
+    if (!localStorage.getItem(REVIEWS_KEY)) {
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify([] as Review[]));
     }
   } catch (error) {
     console.error('localStorage access error:', error);
@@ -548,4 +567,70 @@ export const tripStorage = {
     
     return true;
   }
+};
+
+// Utilities
+const normalizeName = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/\./g, '')
+    .replace(/-/g, '')
+    .replace(/_/g, '');
+
+const getProductKey = (productCode?: string, productName?: string) => {
+  if (productCode && productCode.trim().length > 0) return productCode;
+  if (productName && productName.trim().length > 0) return `name:${normalizeName(productName)}`;
+  return `name:${Date.now()}`;
+};
+
+// Review operations
+export const reviewStorage = {
+  getAll: (): Review[] => {
+    if (typeof window === 'undefined') return [];
+    initializeStorage();
+    try {
+      const reviews = localStorage.getItem(REVIEWS_KEY);
+      return reviews ? JSON.parse(reviews) : [];
+    } catch (error) {
+      console.error('localStorage access error:', error);
+      return [];
+    }
+  },
+
+  getByProduct: (productCode?: string, productName?: string): Review[] => {
+    const key = getProductKey(productCode, productName);
+    return reviewStorage.getAll().filter(r => r.productKey === key);
+  },
+
+  create: (params: {
+    userId: string;
+    productName: string;
+    productCode?: string;
+    rating: number;
+    text: string;
+    receiptId?: string;
+    tripId?: string;
+  }): Review => {
+    if (typeof window === 'undefined') throw new Error('Cannot create review on server side');
+    const reviews = reviewStorage.getAll();
+    const review: Review = {
+      id: Date.now().toString(),
+      userId: params.userId,
+      productKey: getProductKey(params.productCode, params.productName),
+      productName: params.productName,
+      productCode: params.productCode,
+      rating: Math.min(5, Math.max(0.5, Math.round(params.rating * 2) / 2)),
+      text: (params.text || '').slice(0, 100),
+      receiptId: params.receiptId,
+      tripId: params.tripId,
+      createdAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify([...reviews, review]));
+    } catch (error) {
+      console.error('localStorage access error:', error);
+    }
+    return review;
+  },
 };

@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import ReviewModal from '../components/ReviewModal';
+import { receiptStorage, reviewStorage } from '../utils/mockData';
 
 interface Product {
   id: number;
@@ -17,12 +19,37 @@ interface Product {
   image: string;
 }
 
-export default function PopularProducts() {
+export default function PopularProducts({
+  timeFilter,
+  customStart,
+  customEnd,
+}: {
+  timeFilter?: 'week' | 'month' | 'year' | 'custom';
+  customStart?: string;
+  customEnd?: string;
+}) {
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [timeFilter, setTimeFilter] = useState('이번달');
 
   const categories = ['전체', '음식', '쇼핑', '교통', '기념품', '화장품'];
-  const timeFilters = ['이번주', '이번달', '최근 3개월'];
+  // 기간 필터 UI는 상위에서 관리합니다.
+  const [reviewTarget, setReviewTarget] = useState<{ name: string } | null>(null);
+
+  const periodLabel = useMemo(() => {
+    switch (timeFilter) {
+      case 'week':
+        return '주간 랭킹';
+      case 'month':
+        return '월간 랭킹';
+      case 'year':
+        return '연간 랭킹';
+      case 'custom':
+        return customStart && customEnd
+          ? `${customStart} ~ ${customEnd} 랭킹`
+          : '사용자 지정 랭킹';
+      default:
+        return undefined;
+    }
+  }, [timeFilter, customStart, customEnd]);
 
   const [products] = useState<Product[]>([
     {
@@ -93,6 +120,21 @@ export default function PopularProducts() {
     }
   ]);
 
+  // 사용자가 해당 상품을 실제 구매했는지 검증
+  const canReview = (p: Product) => {
+    const receipts = receiptStorage.getAll();
+    const norm = (s: string) => s.toLowerCase().replace(/\s+|\.|-|_/g, '');
+    return receipts.some(r => r.items?.some(it => norm(it.nameKr || it.name) === norm(p.name)));
+  };
+
+  const openReview = (p: Product) => {
+    if (!canReview(p)) {
+      alert('내 영수증 내역에 없는 상품은 리뷰를 작성할 수 없습니다.');
+      return;
+    }
+    setReviewTarget({ name: p.name });
+  };
+
   const filteredProducts = products.filter(product => 
     selectedCategory === '전체' || product.category === selectedCategory
   );
@@ -133,23 +175,10 @@ export default function PopularProducts() {
 
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-600">
+          {periodLabel ? `${periodLabel} · ` : ''}
           {filteredProducts.length}개의 인기상품
         </div>
-        <div className="flex gap-2">
-          {timeFilters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setTimeFilter(filter)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors !rounded-button ${
-                timeFilter === filter
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
+        {/* 로컬 기간 버튼 영역 제거 (요청사항) */}
       </div>
 
       <div className="space-y-4">
@@ -218,12 +247,37 @@ export default function PopularProducts() {
                       {product.popularStores.length > 2 && ` 외 ${product.popularStores.length - 2}곳`}
                     </span>
                   </div>
+                  <div>
+                    <button
+                      onClick={() => openReview(product)}
+                      className="mt-2 px-3 py-1.5 rounded-lg border text-xs"
+                    >
+                      리뷰 작성
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {reviewTarget && (
+        <ReviewModal
+          isOpen={true}
+          onClose={() => setReviewTarget(null)}
+          title={`${reviewTarget.name} 리뷰`}
+          onSubmit={(rating, text) => {
+            reviewStorage.create({
+              userId: 'user1',
+              productName: reviewTarget.name,
+              rating,
+              text,
+            });
+            setReviewTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }

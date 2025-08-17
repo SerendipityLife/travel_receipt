@@ -15,7 +15,7 @@ import { errorHandler } from './middleware/errorHandler';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5001;
 
 // Middleware
 app.use(helmet());
@@ -43,22 +43,20 @@ app.use(errorHandler);
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/travelreceipt';
-    await mongoose.connect(mongoURI);
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 1000,
+    } as any);
     console.log('MongoDB connected successfully');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    console.log('Starting server without database connection...');
+    console.error('MongoDB connection error:', error instanceof Error ? error.message : error);
+    console.log('Continuing without database connection...');
   }
 };
 
 // Start server
-const startServer = async () => {
-  try {
-    await connectDB();
-  } catch (error) {
-    console.log('Database connection failed, starting server without database...');
-  }
-  
+const startServer = () => {
+  // Fire-and-forget DB connection so server can start immediately
+  void connectDB();
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });

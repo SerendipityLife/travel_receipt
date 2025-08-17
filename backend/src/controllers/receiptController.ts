@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { RequestWithUser } from '../types/request';
 import Receipt from '../models/Receipt';
 import Trip from '../models/Trip';
 
 // Get all receipts for a user
-export const getReceipts = async (req: Request, res: Response) => {
+export const getReceipts = async (req: RequestWithUser, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -19,7 +20,7 @@ export const getReceipts = async (req: Request, res: Response) => {
 };
 
 // Get single receipt
-export const getReceipt = async (req: Request, res: Response) => {
+export const getReceipt = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -37,7 +38,7 @@ export const getReceipt = async (req: Request, res: Response) => {
 };
 
 // Create new receipt
-export const createReceipt = async (req: Request, res: Response) => {
+export const createReceipt = async (req: RequestWithUser, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -73,7 +74,7 @@ export const createReceipt = async (req: Request, res: Response) => {
 };
 
 // Update receipt
-export const updateReceipt = async (req: Request, res: Response) => {
+export const updateReceipt = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -111,7 +112,7 @@ export const updateReceipt = async (req: Request, res: Response) => {
 };
 
 // Delete receipt
-export const deleteReceipt = async (req: Request, res: Response) => {
+export const deleteReceipt = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;

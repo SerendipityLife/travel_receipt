@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { RequestWithUser } from '../types/request';
 import Trip, { ITrip } from '../models/Trip';
 
 // Get all trips for a user
-export const getTrips = async (req: Request, res: Response) => {
+export const getTrips = async (req: RequestWithUser, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -18,7 +19,7 @@ export const getTrips = async (req: Request, res: Response) => {
 };
 
 // Get single trip
-export const getTrip = async (req: Request, res: Response) => {
+export const getTrip = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -36,7 +37,7 @@ export const getTrip = async (req: Request, res: Response) => {
 };
 
 // Create new trip
-export const createTrip = async (req: Request, res: Response) => {
+export const createTrip = async (req: RequestWithUser, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -59,7 +60,7 @@ export const createTrip = async (req: Request, res: Response) => {
 };
 
 // Update trip
-export const updateTrip = async (req: Request, res: Response) => {
+export const updateTrip = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -82,7 +83,7 @@ export const updateTrip = async (req: Request, res: Response) => {
 };
 
 // Delete trip
-export const deleteTrip = async (req: Request, res: Response) => {
+export const deleteTrip = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -100,7 +101,7 @@ export const deleteTrip = async (req: Request, res: Response) => {
 };
 
 // Add receipt to trip
-export const addReceipt = async (req: Request, res: Response) => {
+export const addReceipt = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const { receipt } = req.body;
@@ -126,7 +127,7 @@ export const addReceipt = async (req: Request, res: Response) => {
 };
 
 // Update trip budget
-export const updateBudget = async (req: Request, res: Response) => {
+export const updateBudget = async (req: RequestWithUser, res: Response) => {
   try {
     const { id } = req.params;
     const { budget } = req.body;

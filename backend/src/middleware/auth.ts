@@ -6,33 +6,41 @@ interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
-    name: string;
+    name?: string;
   };
 }
 
-export const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const auth = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
+      res.status(401).json({ message: 'No token, authorization denied' });
+      return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { id: string };
     const user = await User.findById(decoded.id).select('-password');
     
     if (!user) {
-      return res.status(401).json({ message: 'Token is not valid' });
+      res.status(401).json({ message: 'Token is not valid' });
+      return;
     }
 
     req.user = {
-      id: user._id.toString(),
+      id: String((user as any)._id),
       email: user.email,
-      name: user.name
+      name: (user as any).name
     };
     
     next();
+    return;
   } catch (error) {
     res.status(401).json({ message: 'Token is not valid' });
+    return;
   }
 };

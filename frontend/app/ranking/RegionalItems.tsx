@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 interface RegionalItem {
   id: number;
@@ -22,7 +22,15 @@ interface RegionData {
   popularItems: RegionalItem[];
 }
 
-export default function RegionalItems() {
+export default function RegionalItems({
+  timeFilter,
+  customStart,
+  customEnd,
+}: {
+  timeFilter?: 'week' | 'month' | 'year' | 'custom';
+  customStart?: string;
+  customEnd?: string;
+}) {
   const [selectedCountry, setSelectedCountry] = useState('일본');
   const [selectedRegion, setSelectedRegion] = useState('전체');
 
@@ -125,6 +133,23 @@ export default function RegionalItems() {
 
   const items = getRegionItems().sort((a, b) => b.purchaseCount - a.purchaseCount);
 
+  const periodLabel = useMemo(() => {
+    switch (timeFilter) {
+      case 'week':
+        return '주간 랭킹';
+      case 'month':
+        return '월간 랭킹';
+      case 'year':
+        return '연간 랭킹';
+      case 'custom':
+        return customStart && customEnd
+          ? `${customStart} ~ ${customEnd} 랭킹`
+          : '사용자 지정 랭킹';
+      default:
+        return undefined;
+    }
+  }, [timeFilter, customStart, customEnd]);
+
   const getUniqueScoreColor = (score: number) => {
     if (score >= 90) return 'text-red-600 bg-red-100';
     if (score >= 80) return 'text-orange-600 bg-orange-100';
@@ -198,6 +223,7 @@ export default function RegionalItems() {
       </div>
 
       <div className="text-sm text-gray-600">
+        {periodLabel ? `${periodLabel} · ` : ''}
         {items.length}개의 지역 특산품
       </div>
 

@@ -1,111 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { tripStorage, receiptStorage, Trip, Receipt } from '../utils/mockData';
 
-interface Receipt {
-  id: number;
-  store: string;
-  date: string;
-  time: string;
-  amount: number;
-  category: string;
-  items: number;
-}
-
-export default function AllReceipts() {
-  const [receipts] = useState<Receipt[]>([
-    {
-      id: 1,
-      store: "돈키호테 시부야점",
-      date: "2024-11-16",
-      time: "14:32",
-      amount: 8950,
-      category: "쇼핑",
-      items: 3
-    },
-    {
-      id: 2,
-      store: "세븐일레븐 아사쿠사점",
-      date: "2024-11-16",
-      time: "09:15",
-      amount: 2800,
-      category: "음식",
-      items: 2
-    },
-    {
-      id: 3,
-      store: "JR동일본 신주쿠역",
-      date: "2024-11-15",
-      time: "18:45",
-      amount: 580,
-      category: "교통",
-      items: 1
-    },
-    {
-      id: 4,
-      store: "로손 하라주쿠점",
-      date: "2024-11-15",
-      time: "16:20",
-      amount: 1450,
-      category: "음식",
-      items: 1
-    },
-    {
-      id: 5,
-      store: "다이소 신주쿠점",
-      date: "2024-11-15",
-      time: "13:45",
-      amount: 3200,
-      category: "쇼핑",
-      items: 8
-    },
-    {
-      id: 6,
-      store: "마츠모토키요시 시부야점",
-      date: "2024-11-14",
-      time: "19:30",
-      amount: 5800,
-      category: "생활용품",
-      items: 4
-    },
-    {
-      id: 7,
-      store: "패밀리마트 오모테산도점",
-      date: "2024-11-14",
-      time: "11:15",
-      amount: 890,
-      category: "음식",
-      items: 1
-    },
-    {
-      id: 8,
-      store: "유니클로 긴자점",
-      date: "2024-11-14",
-      time: "15:20",
-      amount: 12500,
-      category: "의류",
-      items: 2
-    }
-  ]);
-
-  const [selectedCategory, setSelectedCategory] = useState('전체');
+export default function TripReceiptsPage() {
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [selectedTripId, setSelectedTripId] = useState<string>('');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
 
-  const categories = ['전체', '음식', '쇼핑', '교통', '생활용품', '의류'];
+  useEffect(() => {
+    const t = tripStorage.getAll();
+    const r = receiptStorage.getAll();
+    setTrips(t);
+    setReceipts(r);
+    if (t.length > 0) setSelectedTripId(t[0]._id);
+  }, []);
 
-  const filteredReceipts = receipts.filter(receipt => 
-    selectedCategory === '전체' || receipt.category === selectedCategory
-  );
+  const tripMap = useMemo(() => Object.fromEntries(trips.map(t => [t._id, t])), [trips]);
 
-  const sortedReceipts = [...filteredReceipts].sort((a, b) => {
+  const filteredReceipts = useMemo(() => {
+    return receipts
+      .filter(r => selectedTripId ? r.tripId === selectedTripId : true);
+  }, [receipts, selectedTripId]);
+
+  const sortedReceipts = useMemo(() => {
+    const arr = [...filteredReceipts];
     if (sortBy === 'date') {
-      return new Date(b.date + ' ' + b.time).getTime() - new Date(a.date + ' ' + a.time).getTime();
+      return arr.sort((a, b) => new Date(b.date + ' ' + b.time).getTime() - new Date(a.date + ' ' + a.time).getTime());
     }
-    return b.amount - a.amount;
-  });
+    return arr.sort((a, b) => (b.totalAmount || 0) - (a.totalAmount || 0));
+  }, [filteredReceipts, sortBy]);
 
-  const totalAmount = filteredReceipts.reduce((sum, receipt) => sum + receipt.amount, 0);
+  const totalAmount = filteredReceipts.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-6">
@@ -117,7 +45,7 @@ export default function AllReceipts() {
           >
             <i className="ri-arrow-left-line text-xl text-gray-700"></i>
           </Link>
-          <h1 className="text-lg font-semibold text-gray-900">모든 영수증</h1>
+          <h1 className="text-lg font-semibold text-gray-900">히스토리</h1>
           <Link
             href="/receipt-scanner"
             className="w-10 h-10 flex items-center justify-center !rounded-button bg-blue-100 hover:bg-blue-200 transition-colors"
@@ -126,33 +54,36 @@ export default function AllReceipts() {
           </Link>
         </div>
 
-        <div className="bg-blue-50 rounded-xl p-4">
+        {/* 여행 선택 칩 */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {trips.map((trip) => (
+            <button
+              key={trip._id}
+              onClick={() => setSelectedTripId(trip._id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors !rounded-button ${
+                selectedTripId === trip._id
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+              }`}
+              title={`${trip.startDate} ~ ${trip.endDate}`}
+            >
+              {trip.title}
+            </button>
+          ))}
+        </div>
+
+        {/* 요약 카드 */}
+        <div className="bg-blue-50 rounded-xl p-4 mt-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-900 mb-1">₩{totalAmount.toLocaleString()}</div>
             <div className="text-sm text-blue-600">
-              {selectedCategory === '전체' ? '전체' : selectedCategory} 영수증 총액 • {filteredReceipts.length}건
+              {tripMap[selectedTripId]?.title || '전체'} • {filteredReceipts.length}건
             </div>
           </div>
         </div>
       </div>
 
       <div className="px-4 pt-6">
-        <div className="flex gap-3 mb-4 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors !rounded-button ${
-                selectedCategory === category
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
         <div className="flex justify-between items-center mb-6">
           <div className="text-sm text-gray-600">
             {filteredReceipts.length}개의 영수증
@@ -182,44 +113,34 @@ export default function AllReceipts() {
         </div>
 
         <div className="space-y-3">
-          {sortedReceipts.map((receipt) => (
-            <Link key={receipt.id} href={`/receipt/${receipt.id}`}>
+          {sortedReceipts.map((r) => (
+            <Link key={r._id} href={`/receipt/${r._id}`}>
               <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-lg mb-1">{receipt.store}</h3>
+                    <h3 className="font-semibold text-gray-900 text-lg mb-1">{r.storeKr || r.store}</h3>
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <i className="ri-calendar-line text-sm"></i>
-                        <span>{receipt.date}</span>
+                        <span>{r.date}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <i className="ri-time-line text-sm"></i>
-                        <span>{receipt.time}</span>
+                        <span>{r.time}</span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-gray-900 mb-1">
-                      ₩{receipt.amount.toLocaleString()}
+                      ₩{(r.totalAmount || 0).toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {receipt.items}개 상품
-                    </div>
+                    <div className="text-xs text-gray-500">{tripMap[r.tripId || '']?.title || ''}</div>
                   </div>
                 </div>
-
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                      receipt.category === '음식' ? 'bg-orange-100 text-orange-800' :
-                      receipt.category === '쇼핑' ? 'bg-purple-100 text-purple-800' :
-                      receipt.category === '교통' ? 'bg-blue-100 text-blue-800' :
-                      receipt.category === '생활용품' ? 'bg-green-100 text-green-800' :
-                      receipt.category === '의류' ? 'bg-pink-100 text-pink-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {receipt.category}
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                      {r.category}
                     </span>
                   </div>
                   <i className="ri-arrow-right-s-line text-xl text-gray-400"></i>
@@ -228,13 +149,13 @@ export default function AllReceipts() {
             </Link>
           ))}
 
-          {filteredReceipts.length === 0 && (
+          {trips.length > 0 && filteredReceipts.length === 0 && (
             <div className="text-center py-12">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="ri-receipt-line text-3xl text-gray-400"></i>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">해당 카테고리에 영수증이 없습니다</h3>
-              <p className="text-gray-500 mb-6">다른 카테고리를 선택하거나 새로운 영수증을 추가해보세요</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">이 여행의 영수증이 없습니다</h3>
+              <p className="text-gray-500 mb-6">새 영수증을 추가해보세요</p>
               <Link
                 href="/receipt-scanner"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors !rounded-button"
@@ -242,6 +163,16 @@ export default function AllReceipts() {
                 <i className="ri-camera-line text-xl"></i>
                 영수증 스캔
               </Link>
+            </div>
+          )}
+
+          {trips.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-suitcase-line text-3xl text-gray-400"></i>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">참여한 여행이 없습니다</h3>
+              <p className="text-gray-500">홈에서 여행을 생성하거나 초대코드로 참여해보세요</p>
             </div>
           )}
         </div>

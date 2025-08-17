@@ -9,28 +9,32 @@ export const errorHandler = (
   console.error(err.stack);
 
   if (err.name === 'ValidationError') {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Validation Error',
       error: err.message
     });
+    return;
   }
 
   if (err.name === 'CastError') {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID format',
       error: err.message
     });
+    return;
   }
 
   if (err.name === 'MongoError' && (err as any).code === 11000) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Duplicate field value',
       error: err.message
     });
+    return;
   }
 
   res.status(500).json({
     message: 'Internal Server Error',
     error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
+  return;
 };
