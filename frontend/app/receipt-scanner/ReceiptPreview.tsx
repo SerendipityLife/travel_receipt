@@ -17,9 +17,10 @@ interface ReceiptPreviewProps {
     exchangeRate: number;
   };
   onEdit: () => void;
+  onSave: () => void;
 }
 
-export default function ReceiptPreview({ receipt, onEdit }: ReceiptPreviewProps) {
+export default function ReceiptPreview({ receipt, onEdit, onSave }: ReceiptPreviewProps) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-3xl p-6 shadow-sm">

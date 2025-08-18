@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { receiptStorage, reviewStorage } from '../utils/mockData';
+import { receiptStorage, reviewStorage, session } from '../utils/mockData';
 import ReviewModal from './ReviewModal';
 
 interface Receipt {
@@ -23,7 +23,16 @@ interface RecentReceiptsProps {
 
 export default function RecentReceipts({ receipts, onAddReceipt, currentTripIndex = 0 }: RecentReceiptsProps) {
   const [preview, setPreview] = useState<any | null>(null);
-  const [reviewTarget, setReviewTarget] = useState<{ productName: string; productCode?: string; receiptId?: string; tripId?: string } | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{
+    productName: string;
+    productCode?: string;
+    receiptId?: string;
+    tripId?: string;
+    existingReviewId?: string;
+    initialRating?: number;
+    initialText?: string;
+    remainingEdits?: number;
+  } | null>(null);
 
   const openPreview = (id: number) => {
     const found = receiptStorage.getById(String(id));
@@ -47,11 +56,25 @@ export default function RecentReceipts({ receipts, onAddReceipt, currentTripInde
 
   const closePreview = () => setPreview(null);
   const openReview = (item: any) => {
+    const productName = item.nameKr || item.name;
+    const productCode = item.code;
+    const currentUserId = session.getCurrentUserId();
+    const existing = reviewStorage.getByUserAndProduct(
+      currentUserId,
+      productCode,
+      productName,
+      preview?.tripId
+    );
+    const remainingEdits = existing ? Math.max(0, 2 - (existing.editCount ?? 0)) : 2;
     setReviewTarget({
-      productName: item.nameKr || item.name,
-      productCode: item.code,
+      productName,
+      productCode,
       receiptId: preview?._id,
       tripId: preview?.tripId,
+      existingReviewId: existing?.id,
+      initialRating: existing?.rating,
+      initialText: existing?.text,
+      remainingEdits,
     });
   };
   const closeReview = () => setReviewTarget(null);
@@ -69,19 +92,20 @@ export default function RecentReceipts({ receipts, onAddReceipt, currentTripInde
       </div>
 
       {receipts.length > 0 ? (
-        <div className="space-y-4">
-          {receipts.map((receipt) => (
+        <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
+          {receipts.slice(0, 7).map((receipt) => (
             <div key={receipt.id}>
               <div
                 onClick={() => openPreview(receipt.id)}
-                className="p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                className="grid grid-cols-[1fr_auto] items-start gap-3 p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900 text-base leading-tight flex-1 mr-3 break-words">{receipt.store}</h4>
-                  <span className="text-base font-bold text-gray-900 leading-tight break-words flex-shrink-0">₩{receipt.amount.toLocaleString()}</span>
-                </div>
+                <div>
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900 text-base leading-tight flex-1 mr-3 break-words">{receipt.store}</h4>
+                    <span className="text-base font-bold text-gray-900 leading-tight break-words flex-shrink-0">₩{receipt.amount.toLocaleString()}</span>
+                  </div>
                 
-                <div className="flex items-center gap-3 text-xs text-gray-600 mb-3 flex-wrap">
+                <div className="flex items-center gap-4 text-xs text-gray-600 mb-3 whitespace-nowrap">
                   <div className="flex items-center gap-1">
                     <i className="ri-calendar-line text-xs"></i>
                     <span className="leading-tight">{receipt.date}</span>
@@ -96,21 +120,25 @@ export default function RecentReceipts({ receipts, onAddReceipt, currentTripInde
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-start">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 leading-tight">
-                    {receipt.category}
-                  </span>
+                </div>
+                {/* 분리된 상세 버튼 (우측) */}
+                <div className="pt-1">
+                  <Link
+                    href={`/receipt/${receipt.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm !rounded-button"
+                    aria-label="상세보기"
+                    title="상세보기"
+                  >
+                    <i className="ri-arrow-right-line"></i>
+                  </Link>
                 </div>
               </div>
-              <div className="flex justify-end mt-1">
-                <Link href={`/receipt/${receipt.id}`} className="text-xs text-blue-600 hover:text-blue-700">
-                  상세보기
-                </Link>
-              </div>
+              
             </div>
           ))}
           
-          {receipts.length >= 3 && (
+          {receipts.length > 7 && (
             <Link href="/receipts">
               <button className="w-full py-4 text-center text-blue-600 hover:text-blue-700 font-medium text-base transition-colors border border-gray-200 rounded-xl hover:bg-blue-50">
                 모든 영수증 보기
@@ -179,16 +207,31 @@ export default function RecentReceipts({ receipts, onAddReceipt, currentTripInde
           isOpen={true}
           onClose={closeReview}
           title={`${reviewTarget.productName} 리뷰`}
+          initialRating={reviewTarget.initialRating}
+          initialText={reviewTarget.initialText}
+          mode={reviewTarget.existingReviewId ? 'edit' : 'create'}
+          remainingEdits={reviewTarget.remainingEdits}
           onSubmit={(rating, text) => {
-            reviewStorage.create({
-              userId: 'user1',
-              productName: reviewTarget.productName,
-              productCode: reviewTarget.productCode,
-              rating,
-              text,
-              receiptId: reviewTarget.receiptId,
-              tripId: reviewTarget.tripId,
-            });
+            try {
+              if (reviewTarget.existingReviewId) {
+                const currentUserId = session.getCurrentUserId();
+                reviewStorage.update(currentUserId, reviewTarget.existingReviewId, { rating, text });
+              } else {
+                const currentUserId = session.getCurrentUserId();
+                reviewStorage.create({
+                  userId: currentUserId,
+                  productName: reviewTarget.productName,
+                  productCode: reviewTarget.productCode,
+                  rating,
+                  text,
+                  receiptId: reviewTarget.receiptId,
+                  tripId: reviewTarget.tripId,
+                });
+              }
+            } catch (e: any) {
+              alert(e?.message || '리뷰 저장 중 오류가 발생했습니다.');
+              return;
+            }
             closeReview();
           }}
         />

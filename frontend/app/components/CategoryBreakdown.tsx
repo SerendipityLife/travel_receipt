@@ -19,34 +19,29 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
     if (categories.length === 0) return null;
 
     let cumulativePercentage = 0;
-    const radius = 38;
-    const strokeWidth = 12;
+    const radius = 45; // 꽉 찬 파이
     const centerX = 50;
     const centerY = 50;
 
     return (
       <svg width="140" height="140" viewBox="0 0 100 100" className="transform -rotate-90">
-        {/* 배경 원 */}
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius}
-          fill="none"
-          stroke="#f3f4f6"
-          strokeWidth={strokeWidth}
-        />
-
         {categories.map((category, index) => {
-          const circumference = 2 * Math.PI * radius;
-          const strokeDasharray = circumference;
-          const strokeDashoffset = circumference - (category.percentage / 100) * circumference;
-          const rotation = (cumulativePercentage / 100) * 360;
+          const startAngle = (cumulativePercentage / 100) * 360;
+          const endAngle = ((cumulativePercentage + category.percentage) / 100) * 360;
+          const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+          const startRad = (Math.PI / 180) * startAngle;
+          const endRad = (Math.PI / 180) * endAngle;
 
-          // 퍼센티지 텍스트 위치 계산 (섹션 중앙)
-          const midAngle = ((cumulativePercentage + category.percentage / 2) / 100) * 360 - 90;
-          const textRadius = radius - strokeWidth / 4; // 섹션 중앙에 위치하도록 조정
-          const textX = centerX + textRadius * Math.cos((midAngle * Math.PI) / 180);
-          const textY = centerY + textRadius * Math.sin((midAngle * Math.PI) / 180);
+          const startX = centerX + radius * Math.cos(startRad);
+          const startY = centerY + radius * Math.sin(startRad);
+          const endX = centerX + radius * Math.cos(endRad);
+          const endY = centerY + radius * Math.sin(endRad);
+
+          const midAngle = ((startAngle + endAngle) / 2) - 90;
+          // 라벨을 조각 내부에 배치 (반지름의 62% 지점)
+          const labelRadius = radius * 0.62;
+          const labelX = centerX + labelRadius * Math.cos((midAngle * Math.PI) / 180);
+          const labelY = centerY + labelRadius * Math.sin((midAngle * Math.PI) / 180);
 
           const colorMap: { [key: string]: string } = {
             'bg-blue-500': '#3B82F6',
@@ -58,35 +53,21 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
             'bg-red-500': '#EF4444'
           };
 
+          const pathD = `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
+
           cumulativePercentage += category.percentage;
 
           return (
             <g key={index}>
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r={radius}
-                fill="none"
-                stroke={colorMap[category.color] || '#6B7280'}
-                strokeWidth={strokeWidth}
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                style={{
-                  transformOrigin: '50% 50%',
-                  transform: `rotate(${rotation}deg)`,
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                }}
-              />
-              {/* 퍼센티지 표시 (5% 이상인 경우만) */}
-              {category.percentage >= 5 && (
+              <path d={pathD} fill={colorMap[category.color] || '#6B7280'} style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }} />
+              {category.percentage >= 3 && (
                 <text
-                  x={textX}
-                  y={textY}
+                  x={labelX}
+                  y={labelY}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="text-[9px] font-bold fill-white drop-shadow-sm"
-                  style={{ transform: 'rotate(90deg)', transformOrigin: `${textX}px ${textY}px` }}
+                  className="text-[10px] font-extrabold fill-white"
+                  style={{ transform: 'rotate(90deg)', transformOrigin: `${labelX}px ${labelY}px`, paintOrder: 'stroke fill', stroke: '#111827', strokeWidth: 1.2 }}
                 >
                   {Math.round(category.percentage)}%
                 </text>
@@ -108,16 +89,6 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
           <div className="flex-shrink-0">
             <div className="relative">
               {createPieChart()}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-sm">
-                  <div>
-                    <div className="text-[9px] text-gray-600 font-medium leading-tight">총 지출</div>
-                    <div className="text-[10px] font-bold text-gray-900 leading-tight break-words">
-                      ₩{totalAmount.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
