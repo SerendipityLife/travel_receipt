@@ -548,7 +548,7 @@ export const receiptStorage = {
     
     const receipts = receiptStorage.getAll();
     const newReceipt: Receipt = {
-      _id: Date.now().toString(),
+      _id: `receipt_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`,
       userId: 'user1',
       ...data,
       createdAt: new Date().toISOString(),
@@ -690,7 +690,7 @@ export const tripStorage = {
     return result;
   },
 
-  joinTripWithCode: (inviteCode: string, name: string, permission: 'editor' | 'viewer'): TripMember => {
+  joinTripWithCode: (inviteCode: string, name: string): TripMember => {
     if (typeof window === 'undefined') {
       throw new Error('Cannot join trip on server side');
     }
@@ -708,9 +708,9 @@ export const tripStorage = {
     }
     
     const newMember: TripMember = {
-      id: Date.now().toString(),
+      id: `member_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`,
       name: name,
-      permission: permission,
+      permission: 'viewer', // 기본적으로 viewer 권한으로 참여
       joinedAt: new Date().toISOString(),
       inviteCode: inviteCode
     };
@@ -833,7 +833,7 @@ const normalizeName = (name: string) =>
 const getProductKey = (productCode?: string, productName?: string) => {
   if (productCode && productCode.trim().length > 0) return productCode;
   if (productName && productName.trim().length > 0) return `name:${normalizeName(productName)}`;
-  return `name:${Date.now()}`;
+  return `name:${Math.random().toString(36).substr(2, 9)}`;
 };
 
 // Review operations
@@ -877,7 +877,7 @@ export const reviewStorage = {
       }
     }
     const review: Review = {
-      id: Date.now().toString(),
+      id: `review_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`,
       userId: params.userId,
       authorRole,
       productKey: getProductKey(params.productCode, params.productName),

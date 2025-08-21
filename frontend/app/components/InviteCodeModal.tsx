@@ -5,7 +5,7 @@ import { useState } from 'react';
 interface InviteCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onJoinTrip: (inviteCode: string, name: string, permission: 'editor' | 'viewer') => Promise<void>;
+  onJoinTrip: (inviteCode: string, name: string) => Promise<void>;
 }
 
 export default function InviteCodeModal({
@@ -15,7 +15,6 @@ export default function InviteCodeModal({
 }: InviteCodeModalProps) {
   const [inviteCode, setInviteCode] = useState('');
   const [name, setName] = useState('');
-  const [permission, setPermission] = useState<'editor' | 'viewer'>('viewer');
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -36,10 +35,9 @@ export default function InviteCodeModal({
     setSuccess('');
 
     try {
-      await onJoinTrip(inviteCode.trim(), name.trim(), permission);
+      await onJoinTrip(inviteCode.trim(), name.trim());
       setInviteCode('');
       setName('');
-      setPermission('viewer');
       setSuccess('여행에 성공적으로 참여했습니다!');
       setTimeout(() => {
         setSuccess('');
@@ -103,20 +101,13 @@ export default function InviteCodeModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              참여 권한
-            </label>
-            <select
-              value={permission}
-              onChange={(e) => setPermission(e.target.value as 'editor' | 'viewer')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="viewer">뷰어 (조회만 가능)</option>
-              <option value="editor">편집자 (수정 가능)</option>
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              여행 생성자가 권한을 변경할 수 있습니다.
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <i className="ri-information-line text-blue-500"></i>
+              <span className="text-sm font-medium text-blue-900">참여 권한</span>
+            </div>
+            <p className="text-xs text-blue-700">
+              기본적으로 <strong>뷰어</strong> 권한으로 참여합니다. 여행 생성자가 나중에 권한을 변경할 수 있습니다.
             </p>
           </div>
 

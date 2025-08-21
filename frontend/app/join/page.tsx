@@ -9,10 +9,10 @@ export default function JoinTripPage() {
   const router = useRouter();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const handleJoinTrip = async (inviteCode: string, name: string, permission: 'editor' | 'viewer') => {
+  const handleJoinTrip = async (inviteCode: string, name: string) => {
     try {
-      // tripStorage를 사용하여 여행 참여
-      const newMember = tripStorage.joinTripWithCode(inviteCode, name, permission);
+      // tripStorage를 사용하여 여행 참여 (기본적으로 viewer 권한으로 참여)
+      const newMember = tripStorage.joinTripWithCode(inviteCode, name, 'viewer');
       
       console.log(`여행 참여 성공: ${name}이(가) ${inviteCode}로 참여`);
       

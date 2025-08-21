@@ -25,237 +25,92 @@ export default function Home() {
   // 테스트를 위해 user1로 변경 (생성자 역할 테스트)
   const currentUserId = 'user1';
 
-  const [trips] = useState([
-    {
-      id: 1,
-      creatorId: "user1", // 여행 생성자 ID
-      title: "오사카 맛집 투어",
-      date: "2024-11-15 ~ 2024-11-18",
-      totalAmount: 89200,
-      days: 4,
-      receiptCount: 8,
-      expenses: {
-        totalSpent: 89200,
-        dailyAverage: 22300,
-        days: 4,
-        receipts: 8
-      },
-      categories: [
-        { name: "음식", amount: 62400, percentage: 70, color: "bg-blue-500" },
-        { name: "교통", amount: 15600, percentage: 17, color: "bg-green-500" },
-        { name: "기타", amount: 11200, percentage: 13, color: "bg-pink-500" }
-      ],
-      budget: {
-        daily: 30000,
-        total: 120000,
-        spent: 89200,
-        remaining: 30800,
-        daysLeft: 4
-      },
-      members: [
-        {
-          id: "1",
-          name: "김친구",
-          permission: "editor" as const,
-          joinedAt: "2024-11-10T10:00:00Z",
-          inviteCode: "TRIP123"
-        },
-        {
-          id: "2",
-          name: "이동행",
-          permission: "viewer" as const,
-          joinedAt: "2024-11-12T14:30:00Z",
-          inviteCode: "TRIP456"
-        }
-      ],
-      receipts: [
-        {
-          id: 1,
-          store: "돈키호테 시부야점",
-          date: "2024-11-16",
-          time: "14:32",
-          amount: 8950,
-          category: "쇼핑",
-          items: 3
-        },
-        {
-          id: 2,
-          store: "세븐일레븐 아사쿠사점",
-          date: "2024-11-16",
-          time: "09:15",
-          amount: 2800,
-          category: "음식",
-          items: 2
-        },
-        {
-          id: 3,
-          store: "JR동일본 신주쿠역",
-          date: "2024-11-15",
-          time: "18:45",
-          amount: 580,
-          category: "교통",
-          items: 1
-        }
-      ]
-    },
-    {
-      id: 2,
-      creatorId: "user1", // 여행 생성자 ID
-      title: "도쿄 쇼핑 여행",
-      date: "2024-10-20 ~ 2024-10-24",
-      totalAmount: 156800,
-      days: 5,
-      receiptCount: 12,
-      expenses: {
-        totalSpent: 156800,
-        dailyAverage: 31360,
-        days: 5,
-        receipts: 12
-      },
-      categories: [
-        { name: "쇼핑", amount: 94080, percentage: 60, color: "bg-purple-500" },
-        { name: "음식", amount: 47040, percentage: 30, color: "bg-blue-500" },
-        { name: "교통", amount: 15680, percentage: 10, color: "bg-green-500" }
-      ],
-      budget: {
-        daily: 35000,
-        total: 175000,
-        spent: 156800,
-        remaining: 18200,
-        daysLeft: 5
-      },
-      members: [], // 동행자 없음
-      receipts: [
-        {
-          id: 4,
-          store: "유니클로 시부야점",
-          date: "2024-10-22",
-          time: "15:20",
-          amount: 45000,
-          category: "쇼핑",
-          items: 5
-        },
-        {
-          id: 5,
-          store: "스타벅스 하라주쿠점",
-          date: "2024-10-21",
-          time: "11:30",
-          amount: 3200,
-          category: "음식",
-          items: 2
-        }
-      ]
-    },
-    {
-      id: 3,
-      creatorId: "user2", // 다른 사용자가 생성한 여행 (동행자로 참여)
-      title: "부산 바다 여행",
-      date: "2024-09-12 ~ 2024-09-14",
-      totalAmount: 45600,
-      days: 3,
-      receiptCount: 5,
-      expenses: {
-        totalSpent: 45600,
-        dailyAverage: 15200,
-        days: 3,
-        receipts: 5
-      },
-      categories: [
-        { name: "음식", amount: 27360, percentage: 60, color: "bg-blue-500" },
-        { name: "숙박", amount: 13680, percentage: 30, color: "bg-orange-500" },
-        { name: "기타", amount: 4560, percentage: 10, color: "bg-pink-500" }
-      ],
-      budget: {
-        daily: 20000,
-        total: 60000,
-        spent: 45600,
-        remaining: 14400,
-        daysLeft: 3
-      },
-      members: [
-        {
-          id: "3",
-          name: "현재사용자",
-          permission: "viewer" as const,
-          joinedAt: "2024-09-10T10:00:00Z",
-          inviteCode: "TRIP789"
-        }
-      ],
-      receipts: [
-        {
-          id: 6,
-          store: "부산 해운대 맛집",
-          date: "2024-09-13",
-          time: "19:00",
-          amount: 25000,
-          category: "음식",
-          items: 4
-        }
-      ]
-    }
-  ]);
-
-
-
-  const [travelMembers, setTravelMembers] = useState([
-    {
-      id: 1,
-      name: "김민수",
-      avatar: "#3B82F6",
-      spent: 35000,
-      paid: 45000,
-      balance: 10000
-    },
-    {
-      id: 2,
-      name: "이지은",
-      avatar: "#EC4899",
-      spent: 28000,
-      paid: 20000,
-      balance: -8000
-    },
-    {
-      id: 3,
-      name: "박준호",
-      avatar: "#10B981",
-      spent: 32000,
-      paid: 30000,
-      balance: -2000
-    }
-  ]);
-
-  const [sharedExpenses, setSharedExpenses] = useState([
-    {
-      id: 1,
-      description: "오사카성 입장료",
-      amount: 15000,
-      paidBy: "김민수",
-      participants: ["김민수", "이지은", "박준호"],
-      date: "2024-11-15"
-    },
-    {
-      id: 2,
-      description: "도톤보리 저녁식사",
-      amount: 48000,
-      paidBy: "이지은",
-      participants: ["김민수", "이지은", "박준호"],
-      date: "2024-11-16"
-    },
-    {
-      id: 3,
-      description: "택시비 (호텔→공항)",
-      amount: 12000,
-      paidBy: "박준호",
-      participants: ["김민수", "이지은", "박준호"],
-      date: "2024-11-18"
-    }
-  ]);
-
+  const [availableTrips, setAvailableTrips] = useState<any[]>([]);
   const [currentTripIndex, setCurrentTripIndex] = useState(0);
-  const [availableTrips, setAvailableTrips] = useState(trips);
+  const [travelMembers, setTravelMembers] = useState<any[]>([]);
+  const [sharedExpenses, setSharedExpenses] = useState<any[]>([]);
   const [showDateSelector, setShowDateSelector] = useState(false);
 
   const currentTrip = availableTrips[currentTripIndex] || null;
+
+  // 초기 데이터 설정
+  useEffect(() => {
+    const initialTrips = [
+      {
+        id: 1,
+        creatorId: "user1", // 여행 생성자 ID
+        title: "오사카 맛집 투어",
+        date: "2024-11-15 ~ 2024-11-18",
+        totalAmount: 89200,
+        days: 4,
+        receiptCount: 8,
+        expenses: {
+          totalSpent: 89200,
+          dailyAverage: 22300,
+          days: 4,
+          receipts: 8
+        },
+        categories: [
+          { name: "음식", amount: 62400, percentage: 70, color: "bg-blue-500" },
+          { name: "교통", amount: 15600, percentage: 17, color: "bg-green-500" },
+          { name: "기타", amount: 11200, percentage: 13, color: "bg-pink-500" }
+        ],
+        budget: {
+          daily: 30000,
+          total: 120000,
+          spent: 89200,
+          remaining: 30800,
+          daysLeft: 4
+        },
+        members: [
+          {
+            id: "1",
+            name: "김친구",
+            permission: "editor" as const,
+            joinedAt: "2024-11-10T10:00:00Z",
+            inviteCode: "TRIP123"
+          },
+          {
+            id: "2",
+            name: "이동행",
+            permission: "viewer" as const,
+            joinedAt: "2024-11-12T14:30:00Z",
+            inviteCode: "TRIP456"
+          }
+        ],
+        receipts: [
+          {
+            id: 1,
+            store: "돈키호테 시부야점",
+            date: "2024-11-16",
+            time: "14:32",
+            amount: 8950,
+            category: "쇼핑",
+            items: 3
+          },
+          {
+            id: 2,
+            store: "세븐일레븐 아사쿠사점",
+            date: "2024-11-16",
+            time: "09:15",
+            amount: 2800,
+            category: "음식",
+            items: 2
+          },
+          {
+            id: 3,
+            store: "JR동일본 신주쿠역",
+            date: "2024-11-15",
+            time: "18:45",
+            amount: 580,
+            category: "교통",
+            items: 1
+          }
+        ]
+      }
+    ];
+    setAvailableTrips(initialTrips);
+  }, []);
 
   // URL 쿼리 파라미터에서 tripIndex 확인하여 해당 여행 카드로 이동
   // 새로고침 시에는 첫 번째 카드부터 보여주기 위해 sessionStorage 사용
@@ -448,7 +303,7 @@ export default function Home() {
 
   const handleAddMember = (name: string) => {
     const newMember = {
-      id: Date.now(),
+      id: Math.floor(Math.random() * 1000000) + Date.now(),
       name: name,
       avatar: `#${Math.floor(Math.random()*16777215).toString(16)}`,
       spent: 0,
@@ -521,7 +376,7 @@ export default function Home() {
     // 기본 멤버 생성 (이름이 없는 경우 인원1, 인원2...)
     const defaultMembers = members.length > 0 ? members : ['인원1'];
     const travelMembersData = defaultMembers.map((name, index) => ({
-      id: Date.now() + index,
+      id: Math.floor(Math.random() * 1000000) + Date.now() + index,
       name: name,
       avatar: `#${Math.floor(Math.random()*16777215).toString(16)}`,
       spent: 0,
@@ -530,7 +385,7 @@ export default function Home() {
     }));
 
     const newTrip = {
-      id: Date.now(),
+      id: Math.floor(Math.random() * 1000000) + Date.now(),
       creatorId: currentUserId, // 현재 사용자가 생성자
       title: finalTitle,
       date: `${formatDate(start)} ~ ${formatDate(end)}`,
@@ -741,9 +596,8 @@ function DateSelector({ onSave, onCancel }: DateSelectorProps) {
   const [title, setTitle] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isSelectingEnd, setIsSelectingEnd] = useState(false);
-  const [members, setMembers] = useState<string[]>(['']);
+  const [selectedCountry, setSelectedCountry] = useState<string>('일본');
   const [budget, setBudget] = useState({ daily: 0, total: 0 });
-  const [showMemberSection, setShowMemberSection] = useState(false);
   const [showBudgetSection, setShowBudgetSection] = useState(false);
 
   const handleSave = () => {
@@ -751,26 +605,11 @@ function DateSelector({ onSave, onCancel }: DateSelectorProps) {
       const formatDate = (date: Date) => {
         return date.toISOString().split('T')[0];
       };
-      const validMembers = members.filter(member => member.trim() !== '');
-      onSave(formatDate(selectedDates.start), formatDate(selectedDates.end), title, validMembers, budget);
+      onSave(formatDate(selectedDates.start), formatDate(selectedDates.end), title, [selectedCountry], budget);
     }
   };
 
-  const addMember = () => {
-    setMembers([...members, '']);
-  };
 
-  const removeMember = (index: number) => {
-    if (members.length > 1) {
-      setMembers(members.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateMember = (index: number, name: string) => {
-    const newMembers = [...members];
-    newMembers[index] = name;
-    setMembers(newMembers);
-  };
 
   const generateCalendarDays = () => {
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -860,6 +699,19 @@ function DateSelector({ onSave, onCancel }: DateSelectorProps) {
             />
           </div>
 
+          {/* 여행 국가 설정 */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">여행 국가</label>
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+            >
+              <option value="일본">일본</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">향후 다른 국가 추가 예정.</p>
+          </div>
+
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <button
@@ -931,50 +783,6 @@ function DateSelector({ onSave, onCancel }: DateSelectorProps) {
             </div>
           )}
 
-          {/* 여행 인원 설정 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-medium text-gray-700">여행 인원 (선택사항)</label>
-              <button
-                onClick={() => setShowMemberSection(!showMemberSection)}
-                className="text-blue-600 text-sm hover:text-blue-700"
-              >
-                {showMemberSection ? '숨기기' : '설정'}
-              </button>
-            </div>
-            {showMemberSection && (
-              <div className="space-y-3">
-                {members.map((member, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={member}
-                      onChange={(e) => updateMember(index, e.target.value)}
-                      placeholder={`인원${index + 1}`}
-                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                      maxLength={20}
-                    />
-                    {members.length > 1 && (
-                      <button
-                        onClick={() => removeMember(index)}
-                        className="w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <i className="ri-delete-bin-line text-sm"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  onClick={addMember}
-                  className="w-full py-2 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-sm"
-                >
-                  <i className="ri-add-line mr-1"></i>
-                  인원 추가
-                </button>
-              </div>
-            )}
-          </div>
-
           {/* 여행 예산 설정 */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
@@ -989,21 +797,21 @@ function DateSelector({ onSave, onCancel }: DateSelectorProps) {
             {showBudgetSection && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">일일 예산</label>
-                  <input
-                    type="number"
-                    value={budget.daily || ''}
-                    onChange={(e) => setBudget({ ...budget, daily: Number(e.target.value) || 0 })}
-                    placeholder="0"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
                   <label className="block text-xs text-gray-600 mb-1">총 예산</label>
                   <input
                     type="number"
                     value={budget.total || ''}
                     onChange={(e) => setBudget({ ...budget, total: Number(e.target.value) || 0 })}
+                    placeholder="0"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">일일 예산</label>
+                  <input
+                    type="number"
+                    value={budget.daily || ''}
+                    onChange={(e) => setBudget({ ...budget, daily: Number(e.target.value) || 0 })}
                     placeholder="0"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
                   />

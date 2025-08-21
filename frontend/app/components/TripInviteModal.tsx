@@ -18,10 +18,10 @@ interface TripInviteModalProps {
   tripId: string;
   currentMembers: TripMember[];
   isCreator: boolean; // 여행 생성자인지 여부
-  onGenerateInviteCode: (tripId: string) => Promise<string>;
-  onRemoveMember: (tripId: string, memberId: string) => void;
-  onUpdateMemberPermission: (tripId: string, memberId: string, permission: 'editor' | 'viewer') => void;
-  onUpdateMemberInfo: (tripId: string, memberId: string, name: string, permission: 'editor' | 'viewer') => void;
+  onGenerateInviteCode?: (tripId: string) => Promise<string>;
+  onRemoveMember?: (tripId: string, memberId: string) => void;
+  onUpdateMemberPermission?: (tripId: string, memberId: string, permission: 'editor' | 'viewer') => void;
+  onUpdateMemberInfo?: (tripId: string, memberId: string, name: string, permission: 'editor' | 'viewer') => void;
 }
 
 export default function TripInviteModal({
@@ -44,6 +44,8 @@ export default function TripInviteModal({
   const [selectedMember, setSelectedMember] = useState<TripMember | null>(null);
 
   const handleGenerateInviteCode = async () => {
+    if (!onGenerateInviteCode) return;
+    
     setIsGenerating(true);
     setError('');
     setSuccess('');
@@ -97,11 +99,15 @@ export default function TripInviteModal({
 
   const handleUpdateMember = (memberId: string, name: string, permission: 'editor' | 'viewer') => {
     // 이름과 권한을 모두 업데이트
-    onUpdateMemberInfo(tripId, memberId, name, permission);
+    if (onUpdateMemberInfo) {
+      onUpdateMemberInfo(tripId, memberId, name, permission);
+    }
   };
 
   const handleDeleteMember = (memberId: string) => {
-    onRemoveMember(tripId, memberId);
+    if (onRemoveMember) {
+      onRemoveMember(tripId, memberId);
+    }
   };
 
   if (!isOpen) return null;

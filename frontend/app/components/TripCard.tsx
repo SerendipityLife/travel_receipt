@@ -6,12 +6,22 @@ import TripInviteModal from './TripInviteModal';
 
 interface TripCardProps {
   trip: {
-    id: string;
+    id: number | string;
+    creatorId?: string;
     title: string;
     date: string;
     totalAmount: number;
     days: number;
-    receipts: number;
+    receiptCount?: number;
+    receipts?: Array<{
+      id: number;
+      store: string;
+      date: string;
+      time: string;
+      amount: number;
+      category: string;
+      items: number;
+    }>;
     budget?: {
       daily: number;
       total: number;
@@ -62,6 +72,8 @@ export default function TripCard({
   const [currentX, setCurrentX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [isDoubleClick, setIsDoubleClick] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,21 +81,39 @@ export default function TripCard({
     setIsEditing(false);
   }, [trip.title, currentIndex]);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setEditTitle(trip.title);
-  };
+  // Reset card states when editing mode changes
+  useEffect(() => {
+    if (!isEditing) {
+      // Reset all card states when exiting edit mode
+      setIsDragging(false);
+      setTranslateX(0);
+      setIsDoubleClick(false);
+      setLastClickTime(0);
+    }
+  }, [isEditing]);
+
+
 
   const handleSave = () => {
     if (editTitle.trim() && onTitleUpdate) {
       onTitleUpdate(editTitle.trim());
     }
     setIsEditing(false);
+    // Reset all card states after editing
+    setIsDragging(false);
+    setTranslateX(0);
+    setIsDoubleClick(false);
+    setLastClickTime(0);
   };
 
   const handleCancel = () => {
     setEditTitle(trip.title);
     setIsEditing(false);
+    // Reset all card states after editing
+    setIsDragging(false);
+    setTranslateX(0);
+    setIsDoubleClick(false);
+    setLastClickTime(0);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -109,12 +139,52 @@ export default function TripCard({
     setShowDeleteConfirm(false);
   };
 
+
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - lastClickTime;
+    
+    if (timeDiff < 300 && timeDiff > 0) {
+      // Double click detected
+      setIsDoubleClick(true);
+      if (isCreator && !isEditing) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Double click detected for editing!');
+        setIsEditing(true);
+        setEditTitle(trip.title);
+      }
+    } else {
+      // Single click
+      setIsDoubleClick(false);
+      if (!isEditing) {
+        setIsDragging(false);
+        setTranslateX(0);
+      }
+    }
+    
+    setLastClickTime(currentTime);
+    
+    // Reset double-click state after a short delay
+    if (timeDiff < 300 && timeDiff > 0) {
+      setTimeout(() => {
+        setIsDoubleClick(false);
+      }, 500);
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (isEditing || trips.length <= 1) return;
-    setIsDragging(true);
-    setIsTransitioning(false);
-    setStartX(e.touches[0].clientX);
-    setCurrentX(e.touches[0].clientX);
+    if (isEditing || trips.length <= 1 || isDoubleClick) return;
+    // 더블 클릭을 방해하지 않도록 지연
+    setTimeout(() => {
+      if (!isDoubleClick) {
+        setIsDragging(true);
+        setIsTransitioning(false);
+        setStartX(e.touches[0].clientX);
+        setCurrentX(e.touches[0].clientX);
+      }
+    }, 100);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -133,20 +203,22 @@ export default function TripCard({
 
     if (Math.abs(deltaX) > threshold && onIndexChange) {
       setIsTransitioning(true);
-      if (deltaX > 0 && currentIndex > 0) {
+      if (deltaX > 0) {
+        // Swipe right - go to previous card or loop to last card
         setTranslateX(400);
         setTimeout(() => {
-          const newIndex = currentIndex - 1;
+          const newIndex = currentIndex > 0 ? currentIndex - 1 : trips.length - 1;
           onIndexChange(newIndex);
           // sessionStorage에 새로운 인덱스 저장
           sessionStorage.setItem('lastTripIndex', newIndex.toString());
           setTranslateX(0);
           setIsTransitioning(false);
         }, 300);
-      } else if (deltaX < 0 && currentIndex < trips.length - 1) {
+      } else if (deltaX < 0) {
+        // Swipe left - go to next card or loop to first card
         setTranslateX(-400);
         setTimeout(() => {
-          const newIndex = currentIndex + 1;
+          const newIndex = currentIndex < trips.length - 1 ? currentIndex + 1 : 0;
           onIndexChange(newIndex);
           // sessionStorage에 새로운 인덱스 저장
           sessionStorage.setItem('lastTripIndex', newIndex.toString());
@@ -162,11 +234,16 @@ export default function TripCard({
   };
 
   const handleMouseStart = (e: React.MouseEvent) => {
-    if (isEditing || trips.length <= 1) return;
-    setIsDragging(true);
-    setIsTransitioning(false);
-    setStartX(e.clientX);
-    setCurrentX(e.clientX);
+    if (isEditing || trips.length <= 1 || isDoubleClick) return;
+    // 더블 클릭을 방해하지 않도록 지연
+    setTimeout(() => {
+      if (!isDoubleClick) {
+        setIsDragging(true);
+        setIsTransitioning(false);
+        setStartX(e.clientX);
+        setCurrentX(e.clientX);
+      }
+    }, 100);
     e.preventDefault();
   };
 
@@ -186,20 +263,22 @@ export default function TripCard({
 
     if (Math.abs(deltaX) > threshold && onIndexChange) {
       setIsTransitioning(true);
-      if (deltaX > 0 && currentIndex > 0) {
+      if (deltaX > 0) {
+        // Swipe right - go to previous card or loop to last card
         setTranslateX(400);
         setTimeout(() => {
-          const newIndex = currentIndex - 1;
+          const newIndex = currentIndex > 0 ? currentIndex - 1 : trips.length - 1;
           onIndexChange(newIndex);
           // sessionStorage에 새로운 인덱스 저장
           sessionStorage.setItem('lastTripIndex', newIndex.toString());
           setTranslateX(0);
           setIsTransitioning(false);
         }, 300);
-      } else if (deltaX < 0 && currentIndex < trips.length - 1) {
+      } else if (deltaX < 0) {
+        // Swipe left - go to next card or loop to first card
         setTranslateX(-400);
         setTimeout(() => {
-          const newIndex = currentIndex + 1;
+          const newIndex = currentIndex < trips.length - 1 ? currentIndex + 1 : 0;
           onIndexChange(newIndex);
           // sessionStorage에 새로운 인덱스 저장
           sessionStorage.setItem('lastTripIndex', newIndex.toString());
@@ -231,20 +310,22 @@ export default function TripCard({
 
       if (Math.abs(deltaX) > threshold && onIndexChange) {
         setIsTransitioning(true);
-        if (deltaX > 0 && currentIndex > 0) {
+        if (deltaX > 0) {
+          // Swipe right - go to previous card or loop to last card
           setTranslateX(400);
           setTimeout(() => {
-            const newIndex = currentIndex - 1;
+            const newIndex = currentIndex > 0 ? currentIndex - 1 : trips.length - 1;
             onIndexChange(newIndex);
             // sessionStorage에 새로운 인덱스 저장
             sessionStorage.setItem('lastTripIndex', newIndex.toString());
             setTranslateX(0);
             setIsTransitioning(false);
           }, 300);
-        } else if (deltaX < 0 && currentIndex < trips.length - 1) {
+        } else if (deltaX < 0) {
+          // Swipe left - go to next card or loop to first card
           setTranslateX(-400);
           setTimeout(() => {
-            const newIndex = currentIndex + 1;
+            const newIndex = currentIndex < trips.length - 1 ? currentIndex + 1 : 0;
             onIndexChange(newIndex);
             // sessionStorage에 새로운 인덱스 저장
             sessionStorage.setItem('lastTripIndex', newIndex.toString());
@@ -311,6 +392,7 @@ export default function TripCard({
         className={`relative rounded-2xl p-6 text-white overflow-hidden ${
           isEditing ? 'select-text' : 'select-none cursor-grab active:cursor-grabbing'
         }`}
+        onClick={handleCardClick}
         style={{
           background: currentTheme.background,
           boxShadow: `0 12px 40px ${currentTheme.shadowColor.split(', ')[0]}, 0 6px 20px ${currentTheme.shadowColor.split(', ')[1]}, 0 2px 8px ${currentTheme.shadowColor.split(', ')[2]}`,
@@ -363,8 +445,8 @@ export default function TripCard({
                   <div className="flex items-start gap-3 mb-2">
                     <div className="flex-1 min-w-0">
                       <h2 
-                        className="text-xl font-bold break-words leading-tight" 
-                        title={trip.title}
+                        className={`text-xl font-bold break-words leading-tight ${isCreator ? 'cursor-pointer hover:text-white/90 transition-colors select-none' : ''}`}
+                        title={isCreator ? '카드를 더블 클릭하여 제목 수정' : trip.title}
                       >
                         {trip.title}
                       </h2>
@@ -393,14 +475,6 @@ export default function TripCard({
                   title="동행자 초대"
                 >
                   <i className="ri-user-add-line text-sm"></i>
-                </button>
-              )}
-              {isCreator && (
-                <button
-                  onClick={handleEditClick}
-                  className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg backdrop-blur-sm hover:bg-white/30 transition-colors !rounded-button"
-                >
-                  <i className="ri-edit-line text-sm"></i>
                 </button>
               )}
               {isCreator && (
@@ -452,234 +526,149 @@ export default function TripCard({
 
 
 
-          {isDragging && Math.abs(translateX) > 50 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div
-                className={`text-white/60 text-2xl transition-all duration-200 ${
-                  Math.abs(translateX) > 100 ? 'scale-125 text-white/90' : 'scale-100'
-                }`}
-              >
-                {translateX > 0 ? (
-                  <i className="ri-arrow-left-line"></i>
-                ) : (
-                  <i className="ri-arrow-right-line"></i>
-                )}
-              </div>
-            </div>
-          )}
+
         </div>
 
-        {trips.length > 1 && (
-          <div className="flex justify-center gap-2 mt-3">
-            {trips.map((_, index) => {
-              const dotTheme = cardColors[index % cardColors.length];
-              const isActive = index === currentIndex;
+        {/* 배경 장식 */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+      </div>
 
-              return (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (!isEditing && onIndexChange) {
-                      onIndexChange(index);
-                      // sessionStorage에 새로운 인덱스 저장
-                      sessionStorage.setItem('lastTripIndex', index.toString());
-                    }
-                  }}
-                  disabled={isEditing}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 !rounded-button ${
-                    isEditing ? 'cursor-not-allowed opacity-50' : ''
-                  }`}
-                  style={{
-                    background: isActive ? dotTheme.background : '#D1D5DB',
-                    transform: isActive ? 'scale(1.2)' : 'scale(1)',
-                    boxShadow: isActive ? `0 2px 8px ${dotTheme.shadowColor.split(', ')[0]}` : 'none',
-                  }}
-                />
-              );
-            })}
-          </div>
-        )}
-
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i className="ri-delete-bin-line text-2xl text-red-500"></i>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">여행 기록 삭제</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  이 여행의 모든 기록과 영수증이 삭제됩니다.
-                  <br />
-                  정말로 삭제하시겠습니까?
-                </p>
+      {/* 삭제 확인 모달 */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-delete-bin-line text-2xl text-red-500"></i>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDeleteCancel}
-                  className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors !rounded-button"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleDeleteConfirm}
-                  className="flex-1 py-3 px-4 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors !rounded-button"
-                >
-                  삭제
-                </button>
-              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">여행 삭제</h3>
+              <p className="text-gray-600 text-sm">
+                "{trip.title}" 여행을 삭제하시겠습니까?<br />
+                이 작업은 되돌릴 수 없습니다.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDeleteCancel}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+              >
+                삭제
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* 동행자 초대 모달 */}
+      {/* 동행자 초대 모달 */}
+      {showInviteModal && (
         <TripInviteModal
           isOpen={showInviteModal}
           onClose={() => setShowInviteModal(false)}
           tripTitle={trip.title}
-          tripId={trip.id}
+          tripId={trip.id.toString()}
           currentMembers={trip.members || []}
           isCreator={isCreator}
-          onGenerateInviteCode={async (tripId: string) => {
-            if (onGenerateInviteCode) {
-              return await onGenerateInviteCode(tripId);
-            }
-            return '';
-          }}
-          onRemoveMember={(tripId: string, memberId: string) => {
-            if (onRemoveMember) {
-              onRemoveMember(tripId, memberId);
-            }
-          }}
-          onUpdateMemberPermission={(tripId: string, memberId: string, permission: 'editor' | 'viewer') => {
-            if (onUpdateMemberPermission) {
-              onUpdateMemberPermission(tripId, memberId, permission);
-            }
-          }}
-          onUpdateMemberInfo={(tripId: string, memberId: string, name: string, permission: 'editor' | 'viewer') => {
-            if (onUpdateMemberInfo) {
-              onUpdateMemberInfo(tripId, memberId, name, permission);
-            }
-          }}
+          onGenerateInviteCode={onGenerateInviteCode}
+          onRemoveMember={onRemoveMember}
+          onUpdateMemberPermission={onUpdateMemberPermission}
+          onUpdateMemberInfo={onUpdateMemberInfo}
         />
+      )}
 
-        {/* 예산 상세 모달 */}
-        {showBudgetDetail && trip.budget && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">예산 상세</h3>
-                <button
-                  onClick={() => setShowBudgetDetail(false)}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  <i className="ri-close-line text-gray-600"></i>
-                </button>
+      {/* 예산 상세 모달 */}
+      {showBudgetDetail && trip.budget && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-money-dollar-circle-line text-2xl text-blue-500"></i>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">예산 상세</h3>
+              <p className="text-gray-600 text-sm">현재 예산 사용 현황입니다</p>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              {/* 총 예산 진행현황 */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">총 예산 진행현황</span>
+                  <span className={`text-sm font-bold ${isBudgetOverspent ? 'text-red-600' : 'text-blue-600'}`}>
+                    {Math.round(budgetProgressPercentage)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      isBudgetOverspent ? 'bg-red-500' : 'bg-blue-500'
+                    }`}
+                    style={{ width: `${Math.min(budgetProgressPercentage, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-600">₩{trip.budget.spent.toLocaleString()}</span>
+                  <span className="text-xs text-gray-600">₩{trip.budget.total.toLocaleString()}</span>
+                </div>
               </div>
 
-              <div className="space-y-6">
-                {/* 총 예산 진행현황 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <i className="ri-time-line text-blue-500 text-sm"></i>
-                    </div>
-                    <h4 className="font-medium text-gray-900">총 예산 진행현황</h4>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">진행률</span>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-bold ${isBudgetOverspent ? 'text-red-600' : 'text-blue-600'}`}>
-                        {Math.round(budgetProgressPercentage)}%
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className={`text-sm font-bold ${isBudgetOverspent ? 'text-red-600' : 'text-green-600'}`}>
-                        잔액 ₩{trip.budget.remaining.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                    <div 
-                      className={`h-3 rounded-full transition-all duration-300 ${
-                        isBudgetOverspent 
-                          ? 'bg-gradient-to-r from-red-400 to-red-300' 
-                          : budgetProgressPercentage > 80 
-                            ? 'bg-gradient-to-r from-yellow-400 to-yellow-300' 
-                            : 'bg-gradient-to-r from-purple-500 to-pink-400'
-                      }`}
-                      style={{ width: `${Math.min(budgetProgressPercentage, 100)}%` }}
-                    ></div>
-                  </div>
-                  
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>₩{trip.budget.spent.toLocaleString()}</span>
-                    <span>₩{trip.budget.total.toLocaleString()}</span>
+              {/* 일일 예산 진행현황 */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">일일 예산 진행현황</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-green-600">
+                      {trip.days > 0 ? Math.round((trip.totalAmount / trip.days) / (trip.budget.total / trip.days) * 100) : 0}%
+                    </span>
+                    <span className="text-gray-400">|</span>
+                    <span className="text-sm font-bold text-green-600">
+                      잔액 ₩{Math.max(0, (trip.budget.total / trip.days) - (trip.totalAmount / trip.days)).toLocaleString()}
+                    </span>
                   </div>
                 </div>
-
-                {/* 일일 예산 진행현황 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <i className="ri-calendar-line text-green-500 text-sm"></i>
-                    </div>
-                    <h4 className="font-medium text-gray-900">일일 예산 진행현황</h4>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">진행률</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-green-600">
-                        {trip.days > 0 ? Math.round((trip.totalAmount / trip.days) / (trip.budget.total / trip.days) * 100) : 0}%
-                      </span>
-                      <span className="text-gray-400">|</span>
-                      <span className="text-sm font-bold text-green-600">
-                        잔액 ₩{Math.max(0, (trip.budget.total / trip.days) - (trip.totalAmount / trip.days)).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                    <div 
-                      className="h-3 rounded-full bg-green-500 transition-all duration-300"
-                      style={{ 
-                        width: `${Math.min(
-                          trip.days > 0 ? (trip.totalAmount / trip.days) / (trip.budget.total / trip.days) * 100 : 0, 
-                          100
-                        )}%` 
-                      }}
-                    ></div>
-                  </div>
-                  
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>₩{trip.days > 0 ? Math.round(trip.totalAmount / trip.days).toLocaleString() : '0'}</span>
-                    <span>₩{trip.days > 0 ? Math.round(trip.budget.total / trip.days).toLocaleString() : '0'}</span>
-                  </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-300 bg-gradient-to-r from-green-500 to-teal-500"
+                    style={{ width: `${Math.min(trip.days > 0 ? (trip.totalAmount / trip.days) / (trip.budget.total / trip.days) * 100 : 0, 100)}%` }}
+                  ></div>
                 </div>
-
-                {/* 지출 요약 */}
-                <div className="bg-blue-50 rounded-xl p-4">
-                  <h4 className="font-medium text-blue-900 mb-3">지출 요약</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-900">₩{trip.totalAmount.toLocaleString()}</div>
-                      <div className="text-xs text-blue-600">총 지출 금액</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-900">
-                        ₩{trip.days > 0 ? Math.round(trip.totalAmount / trip.days).toLocaleString() : '0'}
-                      </div>
-                      <div className="text-xs text-blue-600">일평균 지출</div>
-                    </div>
-                  </div>
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-600">₩{trip.days > 0 ? Math.round(trip.totalAmount / trip.days) : 0}</span>
+                  <span className="text-xs text-gray-600">₩{trip.days > 0 ? Math.round(trip.budget.total / trip.days) : 0}</span>
                 </div>
               </div>
             </div>
+
+            <button
+              onClick={() => setShowBudgetDetail(false)}
+              className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            >
+              확인
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* 페이지 인디케이터 */}
+      {trips.length > 1 && (
+        <div className="flex justify-center mt-4 gap-2">
+          {trips.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'bg-blue-500 scale-125' 
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

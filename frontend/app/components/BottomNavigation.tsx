@@ -75,9 +75,9 @@ export default function BottomNavigation({ onAddTrip, activeTab = 'home', onTabC
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <i className="ri-suitcase-line text-lg text-blue-600"></i>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-900">일정 추가</div>
-                  <div className="text-sm text-gray-500">새로운 여행 계획</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-gray-900 whitespace-nowrap">일정 추가</div>
+                  <div className="text-sm text-gray-500 whitespace-nowrap">새로운 여행 계획</div>
                 </div>
               </button>
               
@@ -88,9 +88,9 @@ export default function BottomNavigation({ onAddTrip, activeTab = 'home', onTabC
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                   <i className="ri-camera-line text-lg text-green-600"></i>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-900">영수증 추가</div>
-                  <div className="text-sm text-gray-500">사진으로 기록</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-gray-900 whitespace-nowrap">영수증 추가</div>
+                  <div className="text-sm text-gray-500 whitespace-nowrap">사진으로 기록</div>
                 </div>
               </button>
               
@@ -104,9 +104,9 @@ export default function BottomNavigation({ onAddTrip, activeTab = 'home', onTabC
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <i className="ri-user-add-line text-lg text-purple-600"></i>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-900">여행 참여</div>
-                  <div className="text-sm text-gray-500">초대코드로 참여</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-gray-900 whitespace-nowrap">여행 참여</div>
+                  <div className="text-sm text-gray-500 whitespace-nowrap">초대코드로 참여</div>
                 </div>
               </button>
             </div>

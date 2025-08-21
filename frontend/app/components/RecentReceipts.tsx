@@ -97,32 +97,32 @@ export default function RecentReceipts({ receipts, onAddReceipt, currentTripInde
             <div key={receipt.id}>
               <div
                 onClick={() => openPreview(receipt.id)}
-                className="grid grid-cols-[1fr_auto] items-start gap-3 p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center gap-3 p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <div>
-                  <div className="flex items-start justify-between mb-3">
-                    <h4 className="font-semibold text-gray-900 text-base leading-tight flex-1 mr-3 break-words">{receipt.store}</h4>
-                    <span className="text-base font-bold text-gray-900 leading-tight break-words flex-shrink-0">₩{receipt.amount.toLocaleString()}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900 text-base leading-tight truncate mr-3">{receipt.store}</h4>
+                    <span className="text-base font-bold text-gray-900 leading-tight flex-shrink-0">₩{receipt.amount.toLocaleString()}</span>
                   </div>
                 
-                <div className="flex items-center gap-4 text-xs text-gray-600 mb-3 whitespace-nowrap">
-                  <div className="flex items-center gap-1">
-                    <i className="ri-calendar-line text-xs"></i>
-                    <span className="leading-tight">{receipt.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <i className="ri-time-line text-xs"></i>
-                    <span className="leading-tight">{receipt.time}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <i className="ri-shopping-bag-line text-xs"></i>
-                    <span className="leading-tight">{receipt.items}개</span>
+                  <div className="flex items-center gap-4 text-xs text-gray-600 whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      <i className="ri-calendar-line text-xs"></i>
+                      <span className="leading-tight">{receipt.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <i className="ri-time-line text-xs"></i>
+                      <span className="leading-tight">{receipt.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <i className="ri-shopping-bag-line text-xs"></i>
+                      <span className="leading-tight">{receipt.items}개</span>
+                    </div>
                   </div>
                 </div>
                 
-                </div>
-                {/* 분리된 상세 버튼 (우측) */}
-                <div className="pt-1">
+                {/* 상세 버튼 (우측) */}
+                <div className="flex-shrink-0">
                   <Link
                     href={`/receipt/${receipt.id}`}
                     onClick={(e) => e.stopPropagation()}
