@@ -1,0 +1,16 @@
+
+> travelreceipt-frontend@0.1.0 dev
+> cross-env NODE_ENV=development next dev -H 0.0.0.0 -p 3000
+
+   ▲ Next.js 15.3.2
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1164ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1284ms (983 modules)
+ GET / 200 in 1628ms
+ ✓ Compiled in 106ms (368 modules)
+[?25h

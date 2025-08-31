@@ -1,0 +1,2348 @@
+{
+  "timestamp": "2025-08-31T00:56:09.575Z",
+  "requestUrl": "https://mn8gztw280.apigw.ntruss.com/custom/v1/45537/84e9af0bcdbe205df70171fb59ca5e94d4dba35be692d114c44f34bb7f395ab0/general",
+  "responseStatus": 200,
+  "responseData": {
+    "version": "V1",
+    "requestId": "receipt_1756601767372",
+    "timestamp": 1756601769508,
+    "images": [
+      {
+        "uid": "0678d8636f8c46a18868bd23291040d3",
+        "name": "receipt",
+        "inferResult": "SUCCESS",
+        "message": "SUCCESS",
+        "validationResult": {
+          "result": "NO_REQUESTED"
+        },
+        "fields": [
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 415,
+                  "y": 28
+                },
+                {
+                  "x": 425,
+                  "y": 28
+                },
+                {
+                  "x": 425,
+                  "y": 38
+                },
+                {
+                  "x": 415,
+                  "y": 38
+                }
+              ]
+            },
+            "inferText": "#",
+            "inferConfidence": 0.7217
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 355,
+                  "y": 33
+                },
+                {
+                  "x": 447,
+                  "y": 41
+                },
+                {
+                  "x": 446,
+                  "y": 52
+                },
+                {
+                  "x": 354,
+                  "y": 43
+                }
+              ]
+            },
+            "inferText": "/R0DNE",
+            "inferConfidence": 0.389
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 315,
+                  "y": 41
+                },
+                {
+                  "x": 478,
+                  "y": 52
+                },
+                {
+                  "x": 475,
+                  "y": 100
+                },
+                {
+                  "x": 312,
+                  "y": 89
+                }
+              ]
+            },
+            "inferText": "F",
+            "inferConfidence": 0.7611
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 320,
+                  "y": 90
+                },
+                {
+                  "x": 337,
+                  "y": 90
+                },
+                {
+                  "x": 337,
+                  "y": 100
+                },
+                {
+                  "x": 320,
+                  "y": 100
+                }
+              ]
+            },
+            "inferText": "14",
+            "inferConfidence": 0.2876
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 377,
+                  "y": 96
+                },
+                {
+                  "x": 457,
+                  "y": 104
+                },
+                {
+                  "x": 456,
+                  "y": 111
+                },
+                {
+                  "x": 377,
+                  "y": 103
+                }
+              ]
+            },
+            "inferText": "▼3-2-19-10",
+            "inferConfidence": 0.7027
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 296,
+                  "y": 154
+                },
+                {
+                  "x": 334,
+                  "y": 156
+                },
+                {
+                  "x": 333,
+                  "y": 171
+                },
+                {
+                  "x": 295,
+                  "y": 168
+                }
+              ]
+            },
+            "inferText": "中 M :",
+            "inferConfidence": 0.6564
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 394,
+                  "y": 163
+                },
+                {
+                  "x": 478,
+                  "y": 170
+                },
+                {
+                  "x": 478,
+                  "y": 181
+                },
+                {
+                  "x": 393,
+                  "y": 175
+                }
+              ]
+            },
+            "inferText": "TEL0570-047-311",
+            "inferConfidence": 0.9971
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 295,
+                  "y": 168
+                },
+                {
+                  "x": 344,
+                  "y": 172
+                },
+                {
+                  "x": 343,
+                  "y": 185
+                },
+                {
+                  "x": 295,
+                  "y": 182
+                }
+              ]
+            },
+            "inferText": "203",
+            "inferConfidence": 0.487
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 419,
+                  "y": 178
+                },
+                {
+                  "x": 476,
+                  "y": 183
+                },
+                {
+                  "x": 475,
+                  "y": 196
+                },
+                {
+                  "x": 418,
+                  "y": 190
+                }
+              ]
+            },
+            "inferText": "24600",
+            "inferConfidence": 0.7748
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 293,
+                  "y": 181
+                },
+                {
+                  "x": 428,
+                  "y": 192
+                },
+                {
+                  "x": 427,
+                  "y": 205
+                },
+                {
+                  "x": 292,
+                  "y": 195
+                }
+              ]
+            },
+            "inferText": "2024年04月02日(《)19:19",
+            "inferConfidence": 0.936
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 435,
+                  "y": 195
+                },
+                {
+                  "x": 475,
+                  "y": 198
+                },
+                {
+                  "x": 474,
+                  "y": 209
+                },
+                {
+                  "x": 434,
+                  "y": 206
+                }
+              ]
+            },
+            "inferText": "LV0018",
+            "inferConfidence": 0.7964
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 295,
+                  "y": 209
+                },
+                {
+                  "x": 395,
+                  "y": 218
+                },
+                {
+                  "x": 394,
+                  "y": 230
+                },
+                {
+                  "x": 294,
+                  "y": 221
+                }
+              ]
+            },
+            "inferText": "No*****752R ",
+            "inferConfidence": 0.8912
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 325,
+                  "y": 226
+                },
+                {
+                  "x": 390,
+                  "y": 231
+                },
+                {
+                  "x": 389,
+                  "y": 242
+                },
+                {
+                  "x": 324,
+                  "y": 237
+                }
+              ]
+            },
+            "inferText": "49698640JAN",
+            "inferConfidence": 0.9879
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 396,
+                  "y": 244
+                },
+                {
+                  "x": 428,
+                  "y": 244
+                },
+                {
+                  "x": 428,
+                  "y": 257
+                },
+                {
+                  "x": 396,
+                  "y": 257
+                }
+              ]
+            },
+            "inferText": "거 - 1",
+            "inferConfidence": 0.5878
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 443,
+                  "y": 247
+                },
+                {
+                  "x": 470,
+                  "y": 247
+                },
+                {
+                  "x": 470,
+                  "y": 258
+                },
+                {
+                  "x": 443,
+                  "y": 258
+                }
+              ]
+            },
+            "inferText": "¥199",
+            "inferConfidence": 0.9979
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 296,
+                  "y": 250
+                },
+                {
+                  "x": 386,
+                  "y": 257
+                },
+                {
+                  "x": 385,
+                  "y": 269
+                },
+                {
+                  "x": 295,
+                  "y": 262
+                }
+              ]
+            },
+            "inferText": "4902820108019JAN",
+            "inferConfidence": 0.9927
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 295,
+                  "y": 266
+                },
+                {
+                  "x": 301,
+                  "y": 266
+                },
+                {
+                  "x": 301,
+                  "y": 272
+                },
+                {
+                  "x": 295,
+                  "y": 272
+                }
+              ]
+            },
+            "inferText": "*",
+            "inferConfidence": 0.9746
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 306,
+                  "y": 264
+                },
+                {
+                  "x": 383,
+                  "y": 269
+                },
+                {
+                  "x": 382,
+                  "y": 281
+                },
+                {
+                  "x": 305,
+                  "y": 276
+                }
+              ]
+            },
+            "inferText": "췻美月",
+            "inferConfidence": 0.5626
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 441,
+                  "y": 269
+                },
+                {
+                  "x": 468,
+                  "y": 269
+                },
+                {
+                  "x": 468,
+                  "y": 281
+                },
+                {
+                  "x": 441,
+                  "y": 281
+                }
+              ]
+            },
+            "inferText": "¥119",
+            "inferConfidence": 0.9997
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 295,
+                  "y": 276
+                },
+                {
+                  "x": 383,
+                  "y": 283
+                },
+                {
+                  "x": 382,
+                  "y": 294
+                },
+                {
+                  "x": 294,
+                  "y": 287
+                }
+              ]
+            },
+            "inferText": "4901330650032JAN",
+            "inferConfidence": 0.9949
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 307,
+                  "y": 291
+                },
+                {
+                  "x": 435,
+                  "y": 297
+                },
+                {
+                  "x": 435,
+                  "y": 308
+                },
+                {
+                  "x": 306,
+                  "y": 302
+                }
+              ]
+            },
+            "inferText": "CP#DJCBbits",
+            "inferConfidence": 0.5971
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 441,
+                  "y": 295
+                },
+                {
+                  "x": 466,
+                  "y": 295
+                },
+                {
+                  "x": 466,
+                  "y": 305
+                },
+                {
+                  "x": 441,
+                  "y": 305
+                }
+              ]
+            },
+            "inferText": "¥299",
+            "inferConfidence": 0.9943
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 293,
+                  "y": 302
+                },
+                {
+                  "x": 381,
+                  "y": 308
+                },
+                {
+                  "x": 381,
+                  "y": 318
+                },
+                {
+                  "x": 293,
+                  "y": 313
+                }
+              ]
+            },
+            "inferText": "4902201182270JAN",
+            "inferConfidence": 0.9917
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 293,
+                  "y": 317
+                },
+                {
+                  "x": 299,
+                  "y": 317
+                },
+                {
+                  "x": 299,
+                  "y": 322
+                },
+                {
+                  "x": 293,
+                  "y": 322
+                }
+              ]
+            },
+            "inferText": "*",
+            "inferConfidence": 0.9962
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 305,
+                  "y": 317
+                },
+                {
+                  "x": 434,
+                  "y": 321
+                },
+                {
+                  "x": 434,
+                  "y": 332
+                },
+                {
+                  "x": 305,
+                  "y": 328
+                }
+              ]
+            },
+            "inferText": "기hykrrh· T 2 日 日",
+            "inferConfidence": 0.3514
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 437,
+                  "y": 320
+                },
+                {
+                  "x": 464,
+                  "y": 320
+                },
+                {
+                  "x": 464,
+                  "y": 331
+                },
+                {
+                  "x": 437,
+                  "y": 331
+                }
+              ]
+            },
+            "inferText": "¥277",
+            "inferConfidence": 0.9992
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 292,
+                  "y": 327
+                },
+                {
+                  "x": 380,
+                  "y": 333
+                },
+                {
+                  "x": 379,
+                  "y": 343
+                },
+                {
+                  "x": 291,
+                  "y": 337
+                }
+              ]
+            },
+            "inferText": "4902201182096JAN",
+            "inferConfidence": 0.9968
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 292,
+                  "y": 342
+                },
+                {
+                  "x": 298,
+                  "y": 342
+                },
+                {
+                  "x": 298,
+                  "y": 349
+                },
+                {
+                  "x": 292,
+                  "y": 349
+                }
+              ]
+            },
+            "inferText": "*",
+            "inferConfidence": 0.9882
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 304,
+                  "y": 342
+                },
+                {
+                  "x": 389,
+                  "y": 345
+                },
+                {
+                  "x": 388,
+                  "y": 356
+                },
+                {
+                  "x": 303,
+                  "y": 352
+                }
+              ]
+            },
+            "inferText": " 노 인 기 술 농",
+            "inferConfidence": 0.5936
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 437,
+                  "y": 345
+                },
+                {
+                  "x": 462,
+                  "y": 345
+                },
+                {
+                  "x": 462,
+                  "y": 356
+                },
+                {
+                  "x": 437,
+                  "y": 356
+                }
+              ]
+            },
+            "inferText": "¥277",
+            "inferConfidence": 0.9985
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 291,
+                  "y": 352
+                },
+                {
+                  "x": 379,
+                  "y": 358
+                },
+                {
+                  "x": 378,
+                  "y": 368
+                },
+                {
+                  "x": 290,
+                  "y": 363
+                }
+              ]
+            },
+            "inferText": "4531915015392JAN",
+            "inferConfidence": 0.9968
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 291,
+                  "y": 367
+                },
+                {
+                  "x": 298,
+                  "y": 367
+                },
+                {
+                  "x": 298,
+                  "y": 374
+                },
+                {
+                  "x": 291,
+                  "y": 374
+                }
+              ]
+            },
+            "inferText": "*",
+            "inferConfidence": 0.9914
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 436,
+                  "y": 370
+                },
+                {
+                  "x": 461,
+                  "y": 371
+                },
+                {
+                  "x": 461,
+                  "y": 382
+                },
+                {
+                  "x": 436,
+                  "y": 381
+                }
+              ]
+            },
+            "inferText": "¥498",
+            "inferConfidence": 0.9854
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 290,
+                  "y": 377
+                },
+                {
+                  "x": 377,
+                  "y": 382
+                },
+                {
+                  "x": 376,
+                  "y": 392
+                },
+                {
+                  "x": 289,
+                  "y": 387
+                }
+              ]
+            },
+            "inferText": "4902777008615JAN",
+            "inferConfidence": 0.9936
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 290,
+                  "y": 391
+                },
+                {
+                  "x": 297,
+                  "y": 391
+                },
+                {
+                  "x": 297,
+                  "y": 398
+                },
+                {
+                  "x": 290,
+                  "y": 398
+                }
+              ]
+            },
+            "inferText": "*",
+            "inferConfidence": 0.9999
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 436,
+                  "y": 396
+                },
+                {
+                  "x": 460,
+                  "y": 397
+                },
+                {
+                  "x": 460,
+                  "y": 406
+                },
+                {
+                  "x": 435,
+                  "y": 405
+                }
+              ]
+            },
+            "inferText": "¥219",
+            "inferConfidence": 0.9948
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 290,
+                  "y": 401
+                },
+                {
+                  "x": 376,
+                  "y": 406
+                },
+                {
+                  "x": 376,
+                  "y": 417
+                },
+                {
+                  "x": 289,
+                  "y": 412
+                }
+              ]
+            },
+            "inferText": "4946842523221JAN",
+            "inferConfidence": 0.9972
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 302,
+                  "y": 415
+                },
+                {
+                  "x": 353,
+                  "y": 418
+                },
+                {
+                  "x": 353,
+                  "y": 427
+                },
+                {
+                  "x": 302,
+                  "y": 425
+                }
+              ]
+            },
+            "inferText": " 2  ",
+            "inferConfidence": 0.6128
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 364,
+                  "y": 418
+                },
+                {
+                  "x": 406,
+                  "y": 419
+                },
+                {
+                  "x": 406,
+                  "y": 429
+                },
+                {
+                  "x": 364,
+                  "y": 428
+                }
+              ]
+            },
+            "inferText": "fm",
+            "inferConfidence": 0.306
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 439,
+                  "y": 420
+                },
+                {
+                  "x": 461,
+                  "y": 420
+                },
+                {
+                  "x": 461,
+                  "y": 433
+                },
+                {
+                  "x": 439,
+                  "y": 433
+                }
+              ]
+            },
+            "inferText": "¥99",
+            "inferConfidence": 0.9992
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 426
+                },
+                {
+                  "x": 375,
+                  "y": 430
+                },
+                {
+                  "x": 375,
+                  "y": 441
+                },
+                {
+                  "x": 288,
+                  "y": 437
+                }
+              ]
+            },
+            "inferText": "4902105002674JAN",
+            "inferConfidence": 0.9832
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 442
+                },
+                {
+                  "x": 295,
+                  "y": 442
+                },
+                {
+                  "x": 295,
+                  "y": 447
+                },
+                {
+                  "x": 289,
+                  "y": 447
+                }
+              ]
+            },
+            "inferText": "R",
+            "inferConfidence": 0.3913
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 301,
+                  "y": 439
+                },
+                {
+                  "x": 344,
+                  "y": 441
+                },
+                {
+                  "x": 343,
+                  "y": 453
+                },
+                {
+                  "x": 300,
+                  "y": 450
+                }
+              ]
+            },
+            "inferText": "YAHAOLION",
+            "inferConfidence": 0.4357
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 348,
+                  "y": 440
+                },
+                {
+                  "x": 429,
+                  "y": 445
+                },
+                {
+                  "x": 429,
+                  "y": 456
+                },
+                {
+                  "x": 347,
+                  "y": 452
+                }
+              ]
+            },
+            "inferText": "ellON",
+            "inferConfidence": 0.4888
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 434,
+                  "y": 446
+                },
+                {
+                  "x": 459,
+                  "y": 447
+                },
+                {
+                  "x": 458,
+                  "y": 457
+                },
+                {
+                  "x": 434,
+                  "y": 456
+                }
+              ]
+            },
+            "inferText": "¥199",
+            "inferConfidence": 0.9946
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 451
+                },
+                {
+                  "x": 375,
+                  "y": 454
+                },
+                {
+                  "x": 375,
+                  "y": 465
+                },
+                {
+                  "x": 288,
+                  "y": 462
+                }
+              ]
+            },
+            "inferText": "4901050138193JAN",
+            "inferConfidence": 0.9934
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 301,
+                  "y": 464
+                },
+                {
+                  "x": 429,
+                  "y": 470
+                },
+                {
+                  "x": 428,
+                  "y": 481
+                },
+                {
+                  "x": 301,
+                  "y": 475
+                }
+              ]
+            },
+            "inferText": "·5· 7  소",
+            "inferConfidence": 0.2688
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 433,
+                  "y": 472
+                },
+                {
+                  "x": 458,
+                  "y": 472
+                },
+                {
+                  "x": 458,
+                  "y": 482
+                },
+                {
+                  "x": 433,
+                  "y": 482
+                }
+              ]
+            },
+            "inferText": "¥199",
+            "inferConfidence": 0.9966
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 477
+                },
+                {
+                  "x": 374,
+                  "y": 480
+                },
+                {
+                  "x": 374,
+                  "y": 491
+                },
+                {
+                  "x": 288,
+                  "y": 487
+                }
+              ]
+            },
+            "inferText": "4901330578947JAN",
+            "inferConfidence": 0.9661
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 301,
+                  "y": 490
+                },
+                {
+                  "x": 405,
+                  "y": 493
+                },
+                {
+                  "x": 405,
+                  "y": 505
+                },
+                {
+                  "x": 301,
+                  "y": 501
+                }
+              ]
+            },
+            "inferText": "※?니2FL L.",
+            "inferConfidence": 0.3929
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 432,
+                  "y": 496
+                },
+                {
+                  "x": 457,
+                  "y": 496
+                },
+                {
+                  "x": 457,
+                  "y": 508
+                },
+                {
+                  "x": 432,
+                  "y": 508
+                }
+              ]
+            },
+            "inferText": "¥179",
+            "inferConfidence": 0.999
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 503
+                },
+                {
+                  "x": 374,
+                  "y": 504
+                },
+                {
+                  "x": 374,
+                  "y": 514
+                },
+                {
+                  "x": 289,
+                  "y": 513
+                }
+              ]
+            },
+            "inferText": "4902888209482JAN",
+            "inferConfidence": 0.9944
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 289,
+                  "y": 518
+                },
+                {
+                  "x": 295,
+                  "y": 518
+                },
+                {
+                  "x": 295,
+                  "y": 524
+                },
+                {
+                  "x": 289,
+                  "y": 524
+                }
+              ]
+            },
+            "inferText": "8",
+            "inferConfidence": 0.6168
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 301,
+                  "y": 515
+                },
+                {
+                  "x": 416,
+                  "y": 519
+                },
+                {
+                  "x": 416,
+                  "y": 531
+                },
+                {
+                  "x": 301,
+                  "y": 527
+                }
+              ]
+            },
+            "inferText": "NIOSU--E-F·",
+            "inferConfidence": 0.3055
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 431,
+                  "y": 521
+                },
+                {
+                  "x": 457,
+                  "y": 524
+                },
+                {
+                  "x": 456,
+                  "y": 535
+                },
+                {
+                  "x": 430,
+                  "y": 532
+                }
+              ]
+            },
+            "inferText": "¥259",
+            "inferConfidence": 0.9943
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 315,
+                  "y": 529
+                },
+                {
+                  "x": 374,
+                  "y": 530
+                },
+                {
+                  "x": 374,
+                  "y": 541
+                },
+                {
+                  "x": 315,
+                  "y": 539
+                }
+              ]
+            },
+            "inferText": "49698633JAN",
+            "inferConfidence": 0.9952
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 420,
+                  "y": 558
+                },
+                {
+                  "x": 458,
+                  "y": 561
+                },
+                {
+                  "x": 457,
+                  "y": 574
+                },
+                {
+                  "x": 418,
+                  "y": 570
+                }
+              ]
+            },
+            "inferText": "¥3,022",
+            "inferConfidence": 0.991
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 283,
+                  "y": 566
+                },
+                {
+                  "x": 334,
+                  "y": 566
+                },
+                {
+                  "x": 334,
+                  "y": 578
+                },
+                {
+                  "x": 283,
+                  "y": 578
+                }
+              ]
+            },
+            "inferText": "8% w w w",
+            "inferConfidence": 0.6909
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 420,
+                  "y": 572
+                },
+                {
+                  "x": 457,
+                  "y": 575
+                },
+                {
+                  "x": 456,
+                  "y": 587
+                },
+                {
+                  "x": 419,
+                  "y": 583
+                }
+              ]
+            },
+            "inferText": "¥3,022",
+            "inferConfidence": 0.9909
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 282,
+                  "y": 579
+                },
+                {
+                  "x": 323,
+                  "y": 579
+                },
+                {
+                  "x": 323,
+                  "y": 592
+                },
+                {
+                  "x": 282,
+                  "y": 592
+                }
+              ]
+            },
+            "inferText": "8%",
+            "inferConfidence": 0.7528
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 430,
+                  "y": 584
+                },
+                {
+                  "x": 457,
+                  "y": 587
+                },
+                {
+                  "x": 455,
+                  "y": 599
+                },
+                {
+                  "x": 429,
+                  "y": 596
+                }
+              ]
+            },
+            "inferText": "¥241",
+            "inferConfidence": 0.9996
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 277,
+                  "y": 592
+                },
+                {
+                  "x": 329,
+                  "y": 592
+                },
+                {
+                  "x": 329,
+                  "y": 605
+                },
+                {
+                  "x": 277,
+                  "y": 605
+                }
+              ]
+            },
+            "inferText": "( )",
+            "inferConfidence": 0.9524
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 425,
+                  "y": 598
+                },
+                {
+                  "x": 456,
+                  "y": 601
+                },
+                {
+                  "x": 455,
+                  "y": 612
+                },
+                {
+                  "x": 424,
+                  "y": 609
+                }
+              ]
+            },
+            "inferText": "¥241)",
+            "inferConfidence": 0.998
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 275,
+                  "y": 605
+                },
+                {
+                  "x": 300,
+                  "y": 605
+                },
+                {
+                  "x": 300,
+                  "y": 619
+                },
+                {
+                  "x": 275,
+                  "y": 619
+                }
+              ]
+            },
+            "inferText": "m",
+            "inferConfidence": 0.1104
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 385,
+                  "y": 606
+                },
+                {
+                  "x": 455,
+                  "y": 613
+                },
+                {
+                  "x": 454,
+                  "y": 627
+                },
+                {
+                  "x": 384,
+                  "y": 619
+                }
+              ]
+            },
+            "inferText": "¥3,263",
+            "inferConfidence": 0.9967
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 275,
+                  "y": 618
+                },
+                {
+                  "x": 309,
+                  "y": 618
+                },
+                {
+                  "x": 309,
+                  "y": 632
+                },
+                {
+                  "x": 275,
+                  "y": 632
+                }
+              ]
+            },
+            "inferText": ": *",
+            "inferConfidence": 0.576
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 417,
+                  "y": 623
+                },
+                {
+                  "x": 455,
+                  "y": 626
+                },
+                {
+                  "x": 454,
+                  "y": 639
+                },
+                {
+                  "x": 416,
+                  "y": 636
+                }
+              ]
+            },
+            "inferText": "¥4,002",
+            "inferConfidence": 0.9984
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 407,
+                  "y": 634
+                },
+                {
+                  "x": 454,
+                  "y": 640
+                },
+                {
+                  "x": 452,
+                  "y": 653
+                },
+                {
+                  "x": 405,
+                  "y": 648
+                }
+              ]
+            },
+            "inferText": "¥739",
+            "inferConfidence": 0.9995
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 329,
+                  "y": 644
+                },
+                {
+                  "x": 380,
+                  "y": 646
+                },
+                {
+                  "x": 379,
+                  "y": 659
+                },
+                {
+                  "x": 328,
+                  "y": 656
+                }
+              ]
+            },
+            "inferText": "( 000 0",
+            "inferConfidence": 0.5137
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 423,
+                  "y": 649
+                },
+                {
+                  "x": 454,
+                  "y": 653
+                },
+                {
+                  "x": 452,
+                  "y": 666
+                },
+                {
+                  "x": 422,
+                  "y": 662
+                }
+              ]
+            },
+            "inferText": "¥241)",
+            "inferConfidence": 0.9974
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 272,
+                  "y": 659
+                },
+                {
+                  "x": 329,
+                  "y": 659
+                },
+                {
+                  "x": 329,
+                  "y": 670
+                },
+                {
+                  "x": 272,
+                  "y": 670
+                }
+              ]
+            },
+            "inferText": "BombrK",
+            "inferConfidence": 0.3211
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 354,
+                  "y": 659
+                },
+                {
+                  "x": 380,
+                  "y": 659
+                },
+                {
+                  "x": 380,
+                  "y": 671
+                },
+                {
+                  "x": 354,
+                  "y": 671
+                }
+              ]
+            },
+            "inferText": "13",
+            "inferConfidence": 1
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 274,
+                  "y": 668
+                },
+                {
+                  "x": 452,
+                  "y": 675
+                },
+                {
+                  "x": 451,
+                  "y": 690
+                },
+                {
+                  "x": 274,
+                  "y": 683
+                }
+              ]
+            },
+            "inferText": "※가k3 ÷ 3",
+            "inferConfidence": 0.3284
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 272,
+                  "y": 684
+                },
+                {
+                  "x": 417,
+                  "y": 687
+                },
+                {
+                  "x": 417,
+                  "y": 700
+                },
+                {
+                  "x": 272,
+                  "y": 696
+                }
+              ]
+            },
+            "inferText": "majica#Area●年月",
+            "inferConfidence": 0.2332
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 271,
+                  "y": 696
+                },
+                {
+                  "x": 428,
+                  "y": 699
+                },
+                {
+                  "x": 427,
+                  "y": 714
+                },
+                {
+                  "x": 271,
+                  "y": 711
+                }
+              ]
+            },
+            "inferText": "」?n(Lura)",
+            "inferConfidence": 0.3365
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 271,
+                  "y": 710
+                },
+                {
+                  "x": 427,
+                  "y": 713
+                },
+                {
+                  "x": 427,
+                  "y": 728
+                },
+                {
+                  "x": 271,
+                  "y": 725
+                }
+              ]
+            },
+            "inferText": "日(인)£61   |",
+            "inferConfidence": 0.2736
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 275,
+                  "y": 724
+                },
+                {
+                  "x": 388,
+                  "y": 724
+                },
+                {
+                  "x": 388,
+                  "y": 738
+                },
+                {
+                  "x": 275,
+                  "y": 738
+                }
+              ]
+            },
+            "inferText": "( mor〃hytor g )",
+            "inferConfidence": 0.714
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 416,
+                  "y": 743
+                },
+                {
+                  "x": 452,
+                  "y": 748
+                },
+                {
+                  "x": 450,
+                  "y": 762
+                },
+                {
+                  "x": 414,
+                  "y": 757
+                }
+              ]
+            },
+            "inferText": "16P",
+            "inferConfidence": 0.998
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 274,
+                  "y": 754
+                },
+                {
+                  "x": 292,
+                  "y": 756
+                },
+                {
+                  "x": 291,
+                  "y": 765
+                },
+                {
+                  "x": 273,
+                  "y": 763
+                }
+              ]
+            },
+            "inferText": "[*]",
+            "inferConfidence": 0.8213
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 296,
+                  "y": 752
+                },
+                {
+                  "x": 364,
+                  "y": 752
+                },
+                {
+                  "x": 364,
+                  "y": 764
+                },
+                {
+                  "x": 296,
+                  "y": 764
+                }
+              ]
+            },
+            "inferText": "中日韓日(中",
+            "inferConfidence": 0.51
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 368,
+                  "y": 753
+                },
+                {
+                  "x": 393,
+                  "y": 753
+                },
+                {
+                  "x": 393,
+                  "y": 765
+                },
+                {
+                  "x": 368,
+                  "y": 765
+                }
+              ]
+            },
+            "inferText": "(8%)",
+            "inferConfidence": 0.9985
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 398,
+                  "y": 755
+                },
+                {
+                  "x": 447,
+                  "y": 761
+                },
+                {
+                  "x": 445,
+                  "y": 776
+                },
+                {
+                  "x": 396,
+                  "y": 770
+                }
+              ]
+            },
+            "inferText": "* ＼",
+            "inferConfidence": 0.5191
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 272,
+                  "y": 768
+                },
+                {
+                  "x": 297,
+                  "y": 768
+                },
+                {
+                  "x": 297,
+                  "y": 780
+                },
+                {
+                  "x": 272,
+                  "y": 780
+                }
+              ]
+            },
+            "inferText": "「 」",
+            "inferConfidence": 0.69
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 302,
+                  "y": 763
+                },
+                {
+                  "x": 439,
+                  "y": 772
+                },
+                {
+                  "x": 438,
+                  "y": 787
+                },
+                {
+                  "x": 301,
+                  "y": 778
+                }
+              ]
+            },
+            "inferText": "日#NEW",
+            "inferConfidence": 0.3115
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 279,
+                  "y": 777
+                },
+                {
+                  "x": 444,
+                  "y": 785
+                },
+                {
+                  "x": 443,
+                  "y": 802
+                },
+                {
+                  "x": 278,
+                  "y": 793
+                }
+              ]
+            },
+            "inferText": "11/1 k U Z J - - -日 노 ±",
+            "inferConfidence": 0.4249
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 318,
+                  "y": 794
+                },
+                {
+                  "x": 357,
+                  "y": 795
+                },
+                {
+                  "x": 357,
+                  "y": 804
+                },
+                {
+                  "x": 317,
+                  "y": 803
+                }
+              ]
+            },
+            "inferText": "(Spoons",
+            "inferConfidence": 0.9979
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 360,
+                  "y": 795
+                },
+                {
+                  "x": 382,
+                  "y": 795
+                },
+                {
+                  "x": 382,
+                  "y": 806
+                },
+                {
+                  "x": 360,
+                  "y": 806
+                }
+              ]
+            },
+            "inferText": "and",
+            "inferConfidence": 0.9964
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 385,
+                  "y": 796
+                },
+                {
+                  "x": 421,
+                  "y": 802
+                },
+                {
+                  "x": 420,
+                  "y": 812
+                },
+                {
+                  "x": 383,
+                  "y": 805
+                }
+              ]
+            },
+            "inferText": "Straws",
+            "inferConfidence": 0.9619
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 425,
+                  "y": 805
+                },
+                {
+                  "x": 448,
+                  "y": 808
+                },
+                {
+                  "x": 447,
+                  "y": 816
+                },
+                {
+                  "x": 424,
+                  "y": 814
+                }
+              ]
+            },
+            "inferText": "will",
+            "inferConfidence": 0.9783
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 267,
+                  "y": 816
+                },
+                {
+                  "x": 278,
+                  "y": 816
+                },
+                {
+                  "x": 278,
+                  "y": 824
+                },
+                {
+                  "x": 267,
+                  "y": 824
+                }
+              ]
+            },
+            "inferText": "be",
+            "inferConfidence": 0.9995
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 281,
+                  "y": 811
+                },
+                {
+                  "x": 318,
+                  "y": 811
+                },
+                {
+                  "x": 318,
+                  "y": 823
+                },
+                {
+                  "x": 281,
+                  "y": 823
+                }
+              ]
+            },
+            "inferText": "charge",
+            "inferConfidence": 0.9979
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 321,
+                  "y": 808
+                },
+                {
+                  "x": 346,
+                  "y": 808
+                },
+                {
+                  "x": 346,
+                  "y": 819
+                },
+                {
+                  "x": 321,
+                  "y": 819
+                }
+              ]
+            },
+            "inferText": "from",
+            "inferConfidence": 0.9991
+          },
+          {
+            "valueType": "ALL",
+            "boundingPoly": {
+              "vertices": [
+                {
+                  "x": 350,
+                  "y": 809
+                },
+                {
+                  "x": 397,
+                  "y": 811
+                },
+                {
+                  "x": 396,
+                  "y": 821
+                },
+                {
+                  "x": 350,
+                  "y": 819
+                }
+              ]
+            },
+            "inferText": "Nov.1st)",
+            "inferConfidence": 0.9948
+          }
+        ]
+      }
+    ]
+  }
+}
