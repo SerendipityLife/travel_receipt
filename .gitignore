@@ -13,6 +13,19 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.backup
+.env.backup2
+.env.temp
+
+# Keys and sensitive files
+key/
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!firebase.json
+!firestore.rules
+!firestore.indexes.json
 
 # Logs
 npm-debug.log*
