@@ -1,0 +1,16 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Next.js 로딩 애니메이션 숨기기 */
+[data-next-mark-loading="true"] {
+  display: none !important;
+}
+
+/* 로딩 관련 요소들 숨기기 */
+[class*="loading"],
+[class*="spinner"],
+[class*="loader"] {
+  display: none !important;
+}
