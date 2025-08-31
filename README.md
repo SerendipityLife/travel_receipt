@@ -38,12 +38,13 @@ TravelReceipt/
 - **TypeScript** - 타입 안정성
 - **Tailwind CSS** - 스타일링
 - **Remix Icons** - 아이콘
+- **Firebase** - 클라이언트 SDK
 
 ### Backend
 - **Express.js** - Node.js 웹 프레임워크
-- **MongoDB** - NoSQL 데이터베이스
-- **Mongoose** - MongoDB ODM
-- **JWT** - 인증
+- **Firebase Admin SDK** - 서버 SDK
+- **Firestore** - NoSQL 데이터베이스 (MongoDB에서 마이그레이션 중)
+- **Firebase Auth** - 인증 (JWT에서 마이그레이션 중)
 - **bcryptjs** - 비밀번호 해싱
 
 ## 📦 설치 및 실행
@@ -63,7 +64,12 @@ npm run install:all
 ```bash
 # Backend 환경 변수 설정
 cp backend/env.example backend/.env
-# .env 파일을 편집하여 필요한 값들을 설정하세요
+
+# Frontend 환경 변수 설정
+cp frontend/env.example frontend/.env.local
+
+# Firebase 설정 가이드 참조
+# FIREBASE_SETUP.md 파일을 확인하여 Firebase 프로젝트 설정을 완료하세요
 ```
 
 ### 4. 개발 서버 실행

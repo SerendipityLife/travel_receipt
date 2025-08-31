@@ -11,6 +11,7 @@ interface ReceiptPreviewProps {
       nameKr: string;
       price: number;
       quantity: number;
+      janCode?: string;
     }>;
     total: number;
     totalKrw: number;
@@ -41,7 +42,12 @@ export default function ReceiptPreview({ receipt, onEdit, onSave }: ReceiptPrevi
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{item.nameKr}</div>
                   <div className="text-sm text-gray-500">{item.name}</div>
-                  <div className="text-xs text-gray-400">수량: {item.quantity}</div>
+                  <div className="text-xs text-gray-400">
+                    수량: {item.quantity}
+                    {item.janCode && (
+                      <span className="ml-2 text-blue-600">JAN: {item.janCode}</span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="font-semibold">¥{item.price}</div>

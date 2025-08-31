@@ -2,12 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 
-// Routes
-import tripRoutes from './routes/tripRoutes';
-import receiptRoutes from './routes/receiptRoutes';
-import userRoutes from './routes/userRoutes';
+// Firebase 초기화
+import initializeFirebaseAdmin from './config/firebase';
+
+// Firestore Routes (Firebase 기반 API)
+import firestoreTripRoutes from './routes/firestore/tripRoutes';
+import firestoreReceiptRoutes from './routes/firestore/receiptRoutes';
+import firestoreUserRoutes from './routes/firestore/userRoutes';
+import firestoreOcrRoutes from './routes/firestore/ocrRoutes';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -26,10 +29,11 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/trips', tripRoutes);
-app.use('/api/receipts', receiptRoutes);
-app.use('/api/users', userRoutes);
+// Firestore Routes (Firebase 기반 API)
+app.use('/api/firestore/trips', firestoreTripRoutes);
+app.use('/api/firestore/receipts', firestoreReceiptRoutes);
+app.use('/api/firestore/users', firestoreUserRoutes);
+app.use('/api/firestore/ocr', firestoreOcrRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -39,26 +43,14 @@ app.get('/health', (req, res) => {
 // Error handling
 app.use(errorHandler);
 
-// Database connection
-const connectDB = async () => {
-  try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/travelreceipt';
-    await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 1000,
-    } as any);
-    console.log('MongoDB connected successfully');
-  } catch (error) {
-    console.error('MongoDB connection error:', error instanceof Error ? error.message : error);
-    console.log('Continuing without database connection...');
-  }
-};
-
 // Start server
 const startServer = () => {
-  // Fire-and-forget DB connection so server can start immediately
-  void connectDB();
+  // Firebase 초기화
+  initializeFirebaseAdmin();
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Firebase Admin SDK initialized`);
   });
 };
 

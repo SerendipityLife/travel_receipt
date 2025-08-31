@@ -1,0 +1,49 @@
+{
+  "timestamp": "2025-08-31T00:53:26.771Z",
+  "originalImage": {
+    "size": 78379,
+    "mimetype": "image/jpeg"
+  },
+  "ocrResult": {
+    "storeName": "▼3-2-19-10",
+    "date": "2025-08-31",
+    "time": "19:19",
+    "total": 199,
+    "items": [
+      {
+        "name": ")",
+        "price": 241,
+        "quantity": 1
+      },
+      {
+        "name": ")",
+        "price": 241,
+        "quantity": 1
+      }
+    ],
+    "confidence": 0.7814344086021501
+  },
+  "finalResult": {
+    "storeName": "▼3-2-19-10",
+    "date": "2025-08-31",
+    "time": "19:19",
+    "total": 199,
+    "items": [
+      {
+        "name": ")",
+        "price": 241,
+        "quantity": 1,
+        "priceKr": 2128
+      },
+      {
+        "name": ")",
+        "price": 241,
+        "quantity": 1,
+        "priceKr": 2128
+      }
+    ],
+    "confidence": 0.7814344086021501,
+    "exchangeRate": 8.83,
+    "totalKr": 1757
+  }
+}

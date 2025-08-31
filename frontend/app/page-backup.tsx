@@ -16,7 +16,6 @@ import RegionalItems from './ranking/RegionalItems';
 import ReviewsAndTips from './ranking/ReviewsAndTips';
 import { tripStorage, receiptStorage, TripMember } from './utils/mockData';
 import { useAuth } from '../lib/useAuth';
-import { tripAPI } from '../lib/firebase-api';
 
 export default function Home() {
     const { user, loading, logout } = useAuth();
@@ -33,9 +32,6 @@ export default function Home() {
     const [travelMembers, setTravelMembers] = useState<any[]>([]);
     const [sharedExpenses, setSharedExpenses] = useState<any[]>([]);
     const [showDateSelector, setShowDateSelector] = useState(false);
-    const [showTripEdit, setShowTripEdit] = useState(false);
-    const [showTitleEdit, setShowTitleEdit] = useState(false);
-    const [editTitle, setEditTitle] = useState('');
 
     const currentTrip = availableTrips[currentTripIndex] || null;
 
@@ -46,122 +42,84 @@ export default function Home() {
         }
     }, [user, loading, router]);
 
-    // Firebase에서 여행 데이터 로드
+    // 초기 데이터 설정
     useEffect(() => {
-        if (user) { // 로그인된 경우에만 데이터 로드
-            const loadTrips = async () => {
-                try {
-                    const trips = await tripAPI.getTrips();
-                    console.log('Firebase에서 받은 여행 데이터:', trips);
-
-                    // trips가 배열인지 확인
-                    if (!Array.isArray(trips)) {
-                        console.error('여행 데이터가 배열이 아님:', trips);
-                        setAvailableTrips([]);
-                        return;
+        if (user) { // 로그인된 경우에만 초기 데이터 설정
+            const initialTrips = [
+            {
+                id: 1,
+                creatorId: "user1", // 여행 생성자 ID
+                title: "오사카 맛집 투어",
+                date: "2024-11-15 ~ 2024-11-18",
+                totalAmount: 89200,
+                days: 4,
+                receiptCount: 8,
+                expenses: {
+                    totalSpent: 89200,
+                    dailyAverage: 22300,
+                    days: 4,
+                    receipts: 8
+                },
+                categories: [
+                    { name: "음식", amount: 62400, percentage: 70, color: "bg-blue-500" },
+                    { name: "교통", amount: 15600, percentage: 17, color: "bg-green-500" },
+                    { name: "기타", amount: 11200, percentage: 13, color: "bg-pink-500" }
+                ],
+                budget: {
+                    daily: 30000,
+                    total: 120000,
+                    spent: 89200,
+                    remaining: 30800,
+                    daysLeft: 4
+                },
+                members: [
+                    {
+                        id: "1",
+                        name: "김친구",
+                        permission: "editor" as const,
+                        joinedAt: "2024-11-10T10:00:00Z",
+                        inviteCode: "TRIP123"
+                    },
+                    {
+                        id: "2",
+                        name: "이동행",
+                        permission: "viewer" as const,
+                        joinedAt: "2024-11-12T14:30:00Z",
+                        inviteCode: "TRIP456"
                     }
-
-                    // Firebase 데이터를 UI 형식으로 변환
-                    const formattedTrips = trips.map((trip: any) => {
-                        // Timestamp 객체를 날짜 문자열로 변환하는 함수
-                        const formatTimestamp = (timestamp: any) => {
-                            if (!timestamp) return '';
-                            if (typeof timestamp === 'string') return timestamp;
-
-                            try {
-                                // Firebase Timestamp 객체 (toDate 메서드가 있는 경우)
-                                if (timestamp.toDate && typeof timestamp.toDate === 'function') {
-                                    const date = timestamp.toDate();
-                                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                                }
-
-                                // Firebase Timestamp 객체 (_seconds가 있는 경우)
-                                if (timestamp._seconds && typeof timestamp._seconds === 'number') {
-                                    const date = new Date(timestamp._seconds * 1000);
-                                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                                }
-
-                                // 일반 Date 객체
-                                if (timestamp instanceof Date) {
-                                    return `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')}`;
-                                }
-
-                                // 숫자 (Unix timestamp)
-                                if (typeof timestamp === 'number') {
-                                    const date = new Date(timestamp);
-                                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                                }
-
-                                // 객체인 경우 JSON.stringify로 확인
-                                if (typeof timestamp === 'object') {
-                                    console.log('객체 형태의 timestamp:', JSON.stringify(timestamp));
-                                    // _seconds가 있는지 다시 확인
-                                    if (timestamp._seconds) {
-                                        const date = new Date(timestamp._seconds * 1000);
-                                        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                                    }
-                                }
-
-                                console.log('날짜 변환 실패 - timestamp:', timestamp, 'type:', typeof timestamp);
-                                return '날짜 없음';
-                            } catch (error) {
-                                console.error('날짜 변환 중 에러:', error, 'timestamp:', timestamp);
-                                return '날짜 오류';
-                            }
-                        };
-
-                        // 디버깅: 날짜 데이터 출력
-                        console.log('원본 날짜 데이터:', {
-                            startDate: trip.startDate,
-                            endDate: trip.endDate,
-                            startDateType: typeof trip.startDate,
-                            endDateType: typeof trip.endDate,
-                            startDateKeys: trip.startDate ? Object.keys(trip.startDate) : 'null',
-                            endDateKeys: trip.endDate ? Object.keys(trip.endDate) : 'null'
-                        });
-
-                        // 날짜 변환 테스트
-                        const startDateFormatted = formatTimestamp(trip.startDate);
-                        const endDateFormatted = formatTimestamp(trip.endDate);
-                        console.log('변환된 날짜:', { startDateFormatted, endDateFormatted });
-
-                        return {
-                            id: trip.id,
-                            creatorId: trip.userId,
-                            title: trip.title,
-                            date: `${formatTimestamp(trip.startDate)} ~ ${formatTimestamp(trip.endDate)}`,
-                            totalAmount: trip.stats?.totalAmount || 0,
-                            days: trip.stats?.days || 0,
-                            receiptCount: trip.stats?.receiptCount || 0,
-                            expenses: {
-                                totalSpent: trip.stats?.totalAmount || 0,
-                                dailyAverage: trip.stats?.dailyAverage || 0,
-                                days: trip.stats?.days || 0,
-                                receipts: trip.stats?.receiptCount || 0
-                            },
-                            categories: trip.categories || [],
-                            budget: {
-                                daily: trip.budget?.total ? Math.round(trip.budget.total / (trip.stats?.days || 1)) : 0,
-                                total: trip.budget?.total || 0,
-                                spent: trip.budget?.spent || 0,
-                                remaining: trip.budget?.remaining || 0,
-                                daysLeft: trip.stats?.days || 0
-                            },
-                            members: trip.members || [],
-                            receipts: [] // 영수증은 별도로 로드
-                        };
-                    });
-
-                    setAvailableTrips(formattedTrips);
-                } catch (error) {
-                    console.error('여행 데이터 로드 실패:', error);
-                    // 에러 발생 시 빈 배열로 설정
-                    setAvailableTrips([]);
-                }
-            };
-
-            loadTrips();
-        }
+                ],
+                receipts: [
+                    {
+                        id: 1,
+                        store: "돈키호테 시부야점",
+                        date: "2024-11-16",
+                        time: "14:32",
+                        amount: 8950,
+                        category: "쇼핑",
+                        items: 3
+                    },
+                    {
+                        id: 2,
+                        store: "세븐일레븐 아사쿠사점",
+                        date: "2024-11-16",
+                        time: "09:15",
+                        amount: 2800,
+                        category: "음식",
+                        items: 2
+                    },
+                    {
+                        id: 3,
+                        store: "JR동일본 신주쿠역",
+                        date: "2024-11-15",
+                        time: "18:45",
+                        amount: 580,
+                        category: "교통",
+                        items: 1
+                    }
+                ]
+            }
+        ];
+        setAvailableTrips(initialTrips);
     }, [user]);
 
     // URL 쿼리 파라미터에서 tripIndex 확인하여 해당 여행 카드로 이동
@@ -234,36 +192,15 @@ export default function Home() {
         );
     };
 
-    const handleTripDelete = async () => {
-        console.log('handleTripDelete 함수 시작');
-        try {
-            if (!currentTrip) {
-                console.log('currentTrip이 없음');
-                alert('삭제할 여행이 없습니다.');
-                return;
-            }
+    const handleTripDelete = () => {
+        const newTrips = availableTrips.filter((_, index) => index !== currentTripIndex);
+        setAvailableTrips(newTrips);
 
-            console.log('삭제할 여행:', currentTrip);
-            console.log('여행 ID:', currentTrip.id);
-
-            // Firebase에서 여행 삭제
-            await tripAPI.deleteTrip(currentTrip.id);
-
-            // 로컬 상태 업데이트
-            const newTrips = availableTrips.filter((_, index) => index !== currentTripIndex);
-            setAvailableTrips(newTrips);
-
-            if (newTrips.length > 0) {
-                const newIndex = currentTripIndex >= newTrips.length ? newTrips.length - 1 : currentTripIndex;
-                setCurrentTripIndex(newIndex);
-            } else {
-                setCurrentTripIndex(0);
-            }
-
-            alert('여행이 성공적으로 삭제되었습니다.');
-        } catch (error) {
-            console.error('여행 삭제 실패:', error);
-            alert('여행 삭제에 실패했습니다. 다시 시도해주세요.');
+        if (newTrips.length > 0) {
+            const newIndex = currentTripIndex >= newTrips.length ? newTrips.length - 1 : currentTripIndex;
+            setCurrentTripIndex(newIndex);
+        } else {
+            setCurrentTripIndex(0);
         }
     };
 
@@ -371,123 +308,6 @@ export default function Home() {
         return currentMember?.permission || 'viewer';
     };
 
-    // 여행 수정 관련 함수들
-    const handleTripEdit = () => {
-        setShowTripEdit(true);
-    };
-
-    const handleTripUpdate = async (startDate: string, endDate: string, title: string, members: string[], budget: { daily: number; total: number }) => {
-        try {
-            if (!currentTrip) return;
-
-            // 날짜 형식 변환
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-            // 동행자 데이터 생성
-            const travelMembersData = members.map((member, index) => ({
-                id: `member-${index + 1}`,
-                name: member,
-                permission: 'viewer' as const,
-                joinedAt: new Date().toISOString(),
-                inviteCode: ''
-            }));
-
-            // 여행 데이터 업데이트
-            const updatedTripData = {
-                title: title || currentTrip.title,
-                description: `${title || currentTrip.title} 여행`,
-                startDate: startDate,
-                endDate: endDate,
-                location: '여행지',
-                status: 'active',
-                budget: {
-                    total: budget.total || currentTrip.budget?.total || 100000,
-                    currency: 'KRW',
-                    spent: currentTrip.budget?.spent || 0,
-                    remaining: (budget.total || currentTrip.budget?.total || 100000) - (currentTrip.budget?.spent || 0),
-                    daily: budget.total ? Math.round(budget.total / days) : Math.round((currentTrip.budget?.total || 100000) / days)
-                },
-                stats: {
-                    totalAmount: currentTrip.totalAmount || 0,
-                    receiptCount: currentTrip.receiptCount || 0,
-                    days: days,
-                    dailyAverage: currentTrip.totalAmount ? Math.round(currentTrip.totalAmount / days) : 0
-                },
-                categories: currentTrip.categories || ['음식', '교통', '숙박', '쇼핑'],
-                members: travelMembersData,
-                sharedExpenses: []
-            };
-
-            // Firebase에 여행 업데이트
-            await tripAPI.updateTrip(currentTrip.id, updatedTripData);
-
-            // 로컬 상태 업데이트
-            setAvailableTrips(prev =>
-                prev.map(trip =>
-                    trip.id === currentTrip.id
-                        ? {
-                            ...trip,
-                            title: updatedTripData.title,
-                            date: `${startDate} ~ ${endDate}`,
-                            days: days,
-                            budget: {
-                                ...updatedTripData.budget,
-                                daily: updatedTripData.budget.daily || Math.round(updatedTripData.budget.total / days)
-                            },
-                            members: updatedTripData.members
-                        }
-                        : trip
-                )
-            );
-
-            setShowTripEdit(false);
-            alert('여행이 성공적으로 수정되었습니다.');
-        } catch (error) {
-            console.error('여행 수정 실패:', error);
-            alert('여행 수정에 실패했습니다. 다시 시도해주세요.');
-        }
-    };
-
-    // 제목 편집 관련 함수들
-    const handleTitleEdit = () => {
-        setEditTitle(currentTrip.title);
-        setShowTitleEdit(true);
-    };
-
-    const handleTitleSave = async () => {
-        try {
-            if (!editTitle.trim()) {
-                alert('제목을 입력해주세요.');
-                return;
-            }
-
-            // Firebase에 제목 업데이트
-            await tripAPI.updateTrip(currentTrip.id, { title: editTitle.trim() });
-
-            // 로컬 상태 업데이트
-            setAvailableTrips(prev =>
-                prev.map(trip =>
-                    trip.id === currentTrip.id
-                        ? { ...trip, title: editTitle.trim() }
-                        : trip
-                )
-            );
-
-            setShowTitleEdit(false);
-            setEditTitle('');
-        } catch (error) {
-            console.error('제목 업데이트 실패:', error);
-            alert('제목 업데이트에 실패했습니다.');
-        }
-    };
-
-    const handleTitleCancel = () => {
-        setShowTitleEdit(false);
-        setEditTitle('');
-    };
-
     const handleAddTrip = () => {
         setShowDateSelector(true);
     };
@@ -567,7 +387,7 @@ export default function Home() {
         );
     };
 
-    const handleDateSave = async (startDate: string, endDate: string, title: string, members: string[], budget: { daily: number; total: number }) => {
+    const handleDateSave = (startDate: string, endDate: string, title: string, members: string[], budget: { daily: number; total: number }) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
         const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -593,81 +413,40 @@ export default function Home() {
             balance: 0
         }));
 
-        try {
-            // Firebase에 여행 데이터 저장
-            const tripData = {
-                title: finalTitle,
-                description: `${finalTitle} 여행`,
-                startDate: formatDate(start),
-                endDate: formatDate(end),
-                location: '여행지',
-                status: 'active',
-                budget: {
-                    total: budget.total || 0,
-                    currency: 'KRW',
-                    spent: 0,
-                    remaining: budget.total || 0
-                },
-                stats: {
-                    totalAmount: 0,
-                    receiptCount: 0,
-                    days: days,
-                    dailyAverage: 0
-                },
-                categories: [],
-                members: [],
-                sharedExpenses: []
-            };
+        const newTrip = {
+            id: Math.floor(Math.random() * 1000000) + Date.now(),
+            creatorId: currentUserId, // 현재 사용자가 생성자
+            title: finalTitle,
+            date: `${formatDate(start)} ~ ${formatDate(end)}`,
+            totalAmount: 0,
+            days: days,
+            receiptCount: 0,
+            expenses: {
+                totalSpent: 0,
+                dailyAverage: 0,
+                days: days,
+                receipts: 0
+            },
+            categories: [],
+            budget: {
+                daily: budget.daily || 0,
+                total: budget.total || 0,
+                spent: 0,
+                remaining: budget.total || 0,
+                daysLeft: days
+            },
+            members: [], // 새로운 여행은 빈 멤버 배열로 시작
+            receipts: []
+        };
 
-            console.log('여행 저장 시작:', tripData);
+        setAvailableTrips(prev => [...prev, newTrip]);
+        setCurrentTripIndex(availableTrips.length);
 
-            const savedTrip = await tripAPI.createTrip(tripData);
-            console.log('Firebase에 여행 저장 완료:', savedTrip);
+        // 새로운 여행의 동행자 설정
+        setTravelMembers(travelMembersData);
+        setSharedExpenses([]);
 
-            // 저장된 여행을 UI 형식으로 변환하여 로컬 상태 업데이트
-            const formattedTrip = {
-                id: savedTrip.id,
-                creatorId: savedTrip.userId,
-                title: savedTrip.title,
-                date: `${savedTrip.startDate} ~ ${savedTrip.endDate}`,
-                totalAmount: savedTrip.stats?.totalAmount || 0,
-                days: savedTrip.stats?.days || days,
-                receiptCount: savedTrip.stats?.receiptCount || 0,
-                expenses: {
-                    totalSpent: savedTrip.stats?.totalAmount || 0,
-                    dailyAverage: savedTrip.stats?.dailyAverage || 0,
-                    days: savedTrip.stats?.days || days,
-                    receipts: savedTrip.stats?.receiptCount || 0
-                },
-                categories: savedTrip.categories || [],
-                budget: {
-                    daily: savedTrip.budget?.total ? Math.round(savedTrip.budget.total / (savedTrip.stats?.days || 1)) : 0,
-                    total: savedTrip.budget?.total || 0,
-                    spent: savedTrip.budget?.spent || 0,
-                    remaining: savedTrip.budget?.remaining || 0,
-                    daysLeft: savedTrip.stats?.days || days
-                },
-                members: savedTrip.members || [],
-                receipts: []
-            };
-
-            setAvailableTrips(prev => [...prev, formattedTrip]);
-            setCurrentTripIndex(availableTrips.length);
-
-            // 새로운 여행의 동행자 설정
-            setTravelMembers(travelMembersData);
-            setSharedExpenses([]);
-
-            setShowDateSelector(false);
-        } catch (error) {
-            console.error('여행 저장 실패:', error);
-            console.error('에러 상세 정보:', {
-                message: error.message,
-                stack: error.stack,
-                response: error.response
-            });
-            alert(`여행 저장에 실패했습니다: ${error.message}`);
-        }
+        setShowDateSelector(false);
     };
 
     const handleTabChange = (tab: string) => {
@@ -751,59 +530,34 @@ export default function Home() {
 
     if (!currentTrip) {
         return (
-            <div className="min-h-screen bg-gray-50 pb-20">
-                {/* 상단바 추가 */}
-                <div className="bg-white px-4 py-6 shadow-sm">
-                    <div className="flex justify-between items-center">
-                        <div className="text-center flex-1">
-                            <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "Pacifico, serif" }}>
-                                TravelReceipt
-                            </h1>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-600">
-                                {user.email}
-                            </span>
-                            <button
-                                onClick={logout}
-                                className="text-sm text-red-600 hover:text-red-800 transition-colors"
-                            >
-                                로그아웃
-                            </button>
-                        </div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center px-4">
+                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i className="ri-suitcase-line text-4xl text-gray-400"></i>
                     </div>
-                </div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">여행 기록이 없습니다</h2>
+                    <p className="text-gray-600 mb-6">새로운 여행을 시작해보세요!</p>
+                    <button
+                        onClick={handleAddTrip}
+                        className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-medium hover:bg-blue-600 transition-colors !rounded-button flex items-center gap-2 mx-auto"
+                    >
+                        <i className="ri-add-line text-xl"></i>
+                        새로운 여행 추가
+                    </button>
 
-                {/* 메인 콘텐츠 */}
-                <div className="flex items-center justify-center flex-1 px-4">
-                    <div className="text-center">
-                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i className="ri-suitcase-line text-4xl text-gray-400"></i>
-                        </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">여행 기록이 없습니다</h2>
-                        <p className="text-gray-600 mb-6">새로운 여행을 시작해보세요!</p>
-                        <button
-                            onClick={handleAddTrip}
-                            className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-medium hover:bg-blue-600 transition-colors !rounded-button flex items-center gap-2 mx-auto"
-                        >
-                            <i className="ri-add-line text-xl"></i>
-                            새로운 여행 추가
-                        </button>
-                    </div>
-                </div>
+                    {showDateSelector && (
+                        <DateSelector
+                            onSave={handleDateSave}
+                            onCancel={() => setShowDateSelector(false)}
+                        />
+                    )}
 
-                {showDateSelector && (
-                    <DateSelector
-                        onSave={handleDateSave}
-                        onCancel={() => setShowDateSelector(false)}
+                    <BottomNavigation
+                        onAddTrip={handleAddTrip}
+                        activeTab={activeTab}
+                        onTabChange={handleTabChange}
                     />
-                )}
-
-                <BottomNavigation
-                    onAddTrip={handleAddTrip}
-                    activeTab={activeTab}
-                    onTabChange={handleTabChange}
-                />
+                </div>
             </div>
         );
     }
@@ -832,160 +586,19 @@ export default function Home() {
             </div>
 
             <div className="px-4 py-6 space-y-6">
-                {/* 개선된 여행 카드 */}
-                <div
-                    className="relative rounded-2xl p-6 text-white overflow-hidden select-none cursor-grab active:cursor-grabbing"
-                    style={{
-                        background: 'linear-gradient(135deg, #4FC3F7 0%, #29B6F6 25%, #42A5F5 50%, #5C6BC0 75%, #7986CB 100%)',
-                        boxShadow: '0 12px 40px rgba(79, 195, 247, 0.3), 0 6px 20px rgba(89, 134, 203, 0.2), 0 2px 8px rgba(66, 165, 245, 0.15)'
-                    }}
-                    onDoubleClick={handleTitleEdit}
-                    onClick={(e) => {
-                        // 버튼 영역 클릭 시 카드 클릭 이벤트 방지
-                        const target = e.target as HTMLElement;
-                        if (target.closest('button')) {
-                            return;
-                        }
-                        console.log('카드 데이터:', currentTrip);
-                    }}
-                >
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                            {showTitleEdit ? (
-                                <div className="mb-2">
-                                    <input
-                                        type="text"
-                                        value={editTitle}
-                                        onChange={(e) => setEditTitle(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') handleTitleSave();
-                                            if (e.key === 'Escape') handleTitleCancel();
-                                        }}
-                                        className="w-full text-lg font-bold bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-white placeholder-white/60 border border-white/30 focus:outline-none focus:border-white/60"
-                                        placeholder="여행 제목을 입력하세요"
-                                        autoFocus
-                                        maxLength={25}
-                                    />
-                                    <div className="flex gap-2 mt-2">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleTitleSave();
-                                            }}
-                                            className="px-3 py-1 bg-white/30 rounded-full text-sm backdrop-blur-sm hover:bg-white/40 transition-colors"
-                                        >
-                                            저장
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleTitleCancel();
-                                            }}
-                                            className="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm hover:bg-white/30 transition-colors"
-                                        >
-                                            취소
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <h2 className="text-xl font-bold mb-2">{currentTrip.title}</h2>
-                                    <p className="text-white/80 text-sm">{currentTrip.date}</p>
-                                </>
-                            )}
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    alert('동행자 초대 기능은 곧 추가됩니다!');
-                                }}
-                                title="동행자 초대"
-                            >
-                                <i className="ri-user-add-line text-sm"></i>
-                            </button>
-                            <button
-                                className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleTripEdit();
-                                }}
-                                title="여행 수정"
-                            >
-                                <i className="ri-edit-line text-sm"></i>
-                            </button>
-                            <button
-                                className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors relative z-10"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    console.log('삭제 버튼 클릭됨');
-                                    if (confirm(`"${currentTrip.title}" 여행을 삭제하시겠습니까?`)) {
-                                        console.log('삭제 확인됨, handleTripDelete 호출');
-                                        handleTripDelete();
-                                    }
-                                }}
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                }}
-                                title="여행 삭제"
-                            >
-                                <i className="ri-delete-bin-line text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 예산 정보 */}
-                    <div className="mb-6">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-white/80 text-sm">예산 진행률</span>
-                            <div className="flex items-center gap-2">
-                                <span className={`text-sm font-bold ${currentTrip.budget?.spent > currentTrip.budget?.total ? 'text-red-200' : 'text-white'}`}>
-                                    {currentTrip.budget?.total > 0 ? Math.round((currentTrip.budget.spent / currentTrip.budget.total) * 100) : 0}%
-                                </span>
-                                <span className="text-white/60">|</span>
-                                <span className={`text-sm font-bold ${currentTrip.budget?.spent > currentTrip.budget?.total ? 'text-red-200' : 'text-green-200'}`}>
-                                    잔액 ₩{(currentTrip.budget?.remaining || 0).toLocaleString()}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="w-full bg-white/20 rounded-full h-3 backdrop-blur-sm cursor-pointer hover:bg-white/30 transition-colors">
-                            <div
-                                className={`h-3 rounded-full transition-all duration-300 ${currentTrip.budget?.spent > currentTrip.budget?.total
-                                    ? 'bg-gradient-to-r from-red-400 to-red-300'
-                                    : currentTrip.budget?.total > 0 && (currentTrip.budget.spent / currentTrip.budget.total) > 0.8
-                                        ? 'bg-gradient-to-r from-yellow-400 to-yellow-300'
-                                        : 'bg-gradient-to-r from-purple-500 to-pink-400'
-                                    }`}
-                                style={{
-                                    width: `${currentTrip.budget?.total > 0 ? Math.min((currentTrip.budget.spent / currentTrip.budget.total) * 100, 100) : 0}%`
-                                }}
-                            ></div>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <span className="text-white/60 text-xs leading-tight break-words">₩{(currentTrip.budget?.spent || 0).toLocaleString()}</span>
-                            <span className="text-white/60 text-xs leading-tight break-words">₩{(currentTrip.budget?.total || 0).toLocaleString()}</span>
-                        </div>
-                    </div>
-
-                    {/* 통계 정보 */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                            <div className="text-lg font-bold">₩{currentTrip.totalAmount.toLocaleString()}</div>
-                            <div className="text-white/60 text-xs">총 지출 금액</div>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-lg font-bold">₩{Math.round((currentTrip.totalAmount || 0) / Math.max(currentTrip.days || 1, 1)).toLocaleString()}</div>
-                            <div className="text-white/60 text-xs">일평균 지출</div>
-                        </div>
-                    </div>
-
-                    {/* 배경 장식 */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                </div>
+                <TripCard
+                    trip={currentTrip}
+                    onTitleUpdate={handleTitleUpdate}
+                    onDelete={handleTripDelete}
+                    trips={availableTrips}
+                    currentIndex={currentTripIndex}
+                    onIndexChange={handleTripChange}
+                    isCreator={currentTrip.creatorId === currentUserId}
+                    onGenerateInviteCode={handleGenerateInviteCode}
+                    onRemoveMember={handleRemoveMember}
+                    onUpdateMemberPermission={handleUpdateMemberPermission}
+                    onUpdateMemberInfo={handleUpdateMemberInfo}
+                />
                 <RecentReceipts
                     receipts={currentTrip?.receipts || []}
                     onAddReceipt={handleAddReceipt}
@@ -1011,24 +624,6 @@ export default function Home() {
                     onSave={handleDateSave}
                     onCancel={() => setShowDateSelector(false)}
                 />
-            )}
-
-            {showTripEdit && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                        <div className="text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i className="ri-edit-line text-2xl text-blue-500"></i>
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">여행 수정</h3>
-                            <p className="text-gray-600 text-sm">여행 정보를 수정해주세요</p>
-                        </div>
-                        <DateSelector
-                            onSave={handleTripUpdate}
-                            onCancel={() => setShowTripEdit(false)}
-                        />
-                    </div>
-                </div>
             )}
 
             <BottomNavigation
