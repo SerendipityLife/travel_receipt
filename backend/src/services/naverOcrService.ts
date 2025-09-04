@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { FirebaseAiService } from './firebaseAiService';
+import * as fs from 'fs';
+import * as path from 'path';
+import { firebaseAiOcrService } from './firebaseAiOcrService';
 
 interface ReceiptOcrResult {
     storeName: string;
@@ -16,40 +18,106 @@ interface ReceiptOcrResult {
 }
 
 export class NaverOcrService {
-    private firebaseAiService: FirebaseAiService;
-
     constructor() {
-        this.firebaseAiService = new FirebaseAiService();
+        // 기본 생성자
     }
 
-    async analyzeReceipt(imageBase64: string): Promise<ReceiptOcrResult> {
+    async analyzeReceipt(imageBuffer: Buffer): Promise<ReceiptOcrResult> {
         try {
             console.log('네이버 OCR API 호출 시작...');
 
+            // 이미지 버퍼를 base64로 인코딩
+            const imageBase64 = imageBuffer.toString('base64');
+            console.log('이미지 base64 길이:', imageBase64.length);
+
+            // 이미지 크기 검증 (네이버 클라우드 OCR API 제한사항)
+            if (imageBase64.length > 20 * 1024 * 1024) { // 20MB 제한
+                throw new Error('이미지 크기가 너무 큽니다. 20MB 이하의 이미지를 사용해주세요.');
+            }
+
+            // 네이버 클라우드 OCR API 예제에 따른 요청 형식
+            const requestBody = {
+                images: [{
+                    format: 'jpg',
+                    name: 'receipt',
+                    data: imageBase64
+                }],
+                requestId: `receipt-${Date.now()}`,
+                version: 'V2',
+                timestamp: Date.now()
+            };
+
+            console.log('Naver OCR API 요청 URL:', process.env.NAVER_OCR_INVOKE_URL);
+            console.log('Naver OCR API 요청 본문 크기:', JSON.stringify(requestBody).length);
+
             const response = await axios.post(
                 process.env.NAVER_OCR_INVOKE_URL!,
-                {
-                    images: [{
-                        format: 'jpg',
-                        name: 'receipt',
-                        data: imageBase64
-                    }],
-                    requestId: `receipt-${Date.now()}`,
-                    version: 'V2',
-                    timestamp: Date.now()
-                },
+                requestBody,
                 {
                     headers: {
                         'X-OCR-SECRET': process.env.NAVER_OCR_SECRET_KEY!,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    timeout: 60000
                 }
             );
 
             console.log('네이버 OCR API 응답 성공');
+            console.log('응답 데이터 구조:', Object.keys(response.data));
+
+            // 응답 데이터 검증
+            if (!response.data || !response.data.images || !response.data.images[0]) {
+                throw new Error('OCR API 응답 데이터가 올바르지 않습니다.');
+            }
+
+            const ocrResult = response.data.images[0];
+            if (!ocrResult.fields || ocrResult.fields.length === 0) {
+                throw new Error('OCR에서 텍스트를 인식하지 못했습니다. 이미지를 다시 촬영해주세요.');
+            }
+
+            // Raw OCR 응답 데이터를 파일로 저장
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const logDir = path.join(__dirname, '../../logs');
+
+            // logs 디렉토리가 없으면 생성
+            if (!fs.existsSync(logDir)) {
+                fs.mkdirSync(logDir, { recursive: true });
+            }
+
+            // Raw OCR 응답 파일 저장
+            const rawOcrFile = path.join(logDir, `raw_${timestamp}.json`);
+            const rawData = {
+                timestamp: new Date().toISOString(),
+                requestUrl: process.env.NAVER_OCR_INVOKE_URL,
+                responseStatus: response.status,
+                responseData: response.data
+            };
+
+            fs.writeFileSync(rawOcrFile, JSON.stringify(rawData, null, 2));
+            console.log('Raw OCR 응답이 파일로 저장됨:', rawOcrFile);
+
+            // 하이브리드 파싱: 규칙 기반만 사용
             return await this.parseReceiptData(response.data);
         } catch (error) {
             console.error('OCR API 호출 실패:', error);
+            if (axios.isAxiosError(error)) {
+                console.error('응답 상태:', error.response?.status);
+                console.error('응답 데이터:', error.response?.data);
+                console.error('요청 URL:', error.config?.url);
+                console.error('요청 헤더:', error.config?.headers);
+                console.error('요청 데이터 크기:', error.config?.data ? JSON.stringify(error.config.data).length : 'N/A');
+
+                // 네이버 클라우드 OCR API 에러 코드별 처리
+                if (error.response?.status === 400) {
+                    throw new Error('잘못된 요청 형식: 이미지 데이터를 확인해주세요');
+                } else if (error.response?.status === 401) {
+                    throw new Error('인증 실패: API 키를 확인해주세요');
+                } else if (error.response?.status === 429) {
+                    throw new Error('요청 한도 초과: 잠시 후 다시 시도해주세요');
+                } else if (error.response?.status === 500) {
+                    throw new Error('서버 오류: 잠시 후 다시 시도해주세요');
+                }
+            }
             throw new Error('OCR API 호출 실패: ' + (error instanceof Error ? error.message : 'Unknown error'));
         }
     }
@@ -57,198 +125,45 @@ export class NaverOcrService {
     public async parseReceiptData(responseData: any): Promise<ReceiptOcrResult> {
         console.log('OCR 데이터 파싱 시작...');
 
-        if (!responseData.images || !responseData.images[0] || !responseData.images[0].fields) {
+        // 네이버 OCR API 응답 구조 확인 및 처리
+        let fields: any[] = [];
+
+        if (responseData.images && responseData.images[0] && responseData.images[0].fields) {
+            // V2 형식 응답
+            fields = responseData.images[0].fields;
+        } else if (responseData.result && responseData.result.fields) {
+            // V1 형식 응답
+            fields = responseData.result.fields;
+        } else {
+            console.error('지원되지 않는 OCR 응답 형식:', responseData);
             throw new Error('유효하지 않은 OCR 응답 데이터');
         }
 
-        const fields = responseData.images[0].fields;
         console.log('인식된 필드 수:', fields.length);
+        console.log('응답 데이터 구조:', Object.keys(responseData));
 
-        // Firebase AI Logic을 사용한 파싱 시도
-        console.log('Firebase AI Logic을 사용한 파싱 시도...');
-        try {
-            const aiResult = await this.firebaseAiService.parseReceiptWithAI(fields);
-            console.log('Firebase AI Logic 파싱 성공:', aiResult);
-            return aiResult;
-        } catch (aiError) {
-            console.error('Firebase AI Logic 파싱 실패:', aiError);
-            // 폴백 비활성화 - 실제 Firebase AI Logic 호출 확인을 위해
-            throw new Error('Firebase AI Logic 호출 실패 - 폴백 비활성화됨: ' + (aiError instanceof Error ? aiError.message : 'Unknown error'));
-        }
-    }
+        // OCR 텍스트 추출
+        const ocrText = fields.map(field => field.inferText).join('\n');
+        console.log('추출된 OCR 텍스트:', ocrText);
 
-    private extractStoreName(fields: any[]): string {
-        const texts = fields.map(field => field.inferText.trim());
-
-        // 매장명 패턴 찾기 (일반적인 패턴)
-        const storePatterns = [
-            /.*店$/,  // ~점
-            /.*ショップ$/,  // ~샵
-            /.*マート$/,  // ~마트
-            /.*スーパー$/,  // ~슈퍼
-        ];
-
-        for (const text of texts) {
-            for (const pattern of storePatterns) {
-                if (pattern.test(text) && text.length > 2) {
-                    return text;
-                }
-            }
-        }
-
-        // 매장 관련 키워드가 포함된 텍스트 찾기
-        for (const text of texts) {
-            if (text.includes('店') || text.includes('ショップ') || text.includes('マート') ||
-                text.includes('スーパー') || text.includes('ディスカウント')) {
-                return text;
-            }
-        }
-
-        // 첫 번째 유효한 텍스트 반환
-        for (const text of texts) {
-            if (text.length > 2 && !text.match(/^\d+$/) && !text.includes('¥')) {
-                return text;
-            }
-        }
-
-        return 'Unknown Store';
-    }
-
-    private extractDate(fields: any[]): string {
-        const texts = fields.map(field => field.inferText.trim());
-
-        // 날짜 패턴 찾기
-        const datePatterns = [
-            /(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/,
-            /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/,
-            /(\d{4})年(\d{1,2})月(\d{1,2})日/
-        ];
-
-        for (const text of texts) {
-            for (const pattern of datePatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    if (match[1].length === 4) {
-                        return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-                    } else {
-                        return `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-                    }
-                }
-            }
-        }
-
-        return new Date().toISOString().split('T')[0];
-    }
-
-    private extractTime(fields: any[]): string {
-        const texts = fields.map(field => field.inferText.trim());
-
-        // 시간 패턴 찾기
-        const timePattern = /(\d{1,2}):(\d{2})(?::(\d{2}))?/;
-
-        for (const text of texts) {
-            const match = text.match(timePattern);
-            if (match) {
-                return `${match[1].padStart(2, '0')}:${match[2]}`;
-            }
-        }
-
-        return '00:00';
-    }
-
-    private extractTotal(fields: any[]): number {
-        const texts = fields.map(field => field.inferText.trim());
-
-        // 총액 패턴 찾기
-        const totalPatterns = [
-            /合計[:\s]*¥?([0-9,]+)/,
-            /TOTAL[:\s]*¥?([0-9,]+)/,
-            /小計[:\s]*¥?([0-9,]+)/,
-            /¥([0-9,]+)/
-        ];
-
-        let maxAmount = 0;
-
-        for (const text of texts) {
-            for (const pattern of totalPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    const amount = parseInt(match[1].replace(/,/g, ''));
-                    if (amount > maxAmount && amount < 100000) { // 합리적인 범위 체크
-                        maxAmount = amount;
-                    }
-                }
-            }
-        }
-
-        return maxAmount > 0 ? maxAmount : 0;
-    }
-
-    private extractItems(fields: any[]): Array<{ name: string; price: number; quantity: number; janCode?: string }> {
-        const items: Array<{ name: string; price: number; quantity: number; janCode?: string }> = [];
-        const pricePattern = /¥([0-9,]+)/;
-
-        // 가격이 있는 필드들을 찾아서 상품 정보로 추정
-        for (let i = 0; i < fields.length; i++) {
-            const field = fields[i];
-            const text = field.inferText.trim();
-            const priceMatch = text.match(pricePattern);
-
-            if (priceMatch) {
-                const price = parseInt(priceMatch[1].replace(/,/g, ''));
-
-                // 합리적인 가격 범위 체크
-                if (price >= 100 && price <= 100000) {
-                    // JAN 코드 찾기
-                    let janCode = '';
-                    for (let j = i - 1; j >= Math.max(0, i - 5); j--) {
-                        const prevField = fields[j];
-                        const prevText = prevField.inferText.trim();
-                        const janMatch = prevText.match(/^(\d{13})JAN$/);
-                        if (janMatch) {
-                            janCode = janMatch[1];
-                            break;
-                        }
-                    }
-
-                    // 상품명 찾기
-                    let itemName = '';
-                    const namePart = text.replace(pricePattern, '').trim();
-
-                    if (namePart.length > 0) {
-                        itemName = namePart;
-                    } else {
-                        // 이전 필드에서 상품명 찾기
-                        for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
-                            const prevField = fields[j];
-                            const prevText = prevField.inferText.trim();
-
-                            if (!prevText.match(pricePattern) &&
-                                !prevText.match(/^\d+$/) &&
-                                !prevText.match(/^[A-Z0-9]+$/) &&
-                                !prevText.match(/^[*():%\s]+$/) &&
-                                prevText.length > 1) {
-                                itemName = prevText;
-                                break;
-                            }
-                        }
-                    }
-
-                    // 상품명이 유효한 경우에만 추가
-                    if (itemName && itemName.length > 0) {
-                        items.push({
-                            name: itemName,
-                            price: price,
-                            quantity: 1,
-                            janCode: janCode
-                        });
-                    }
-                }
-            }
-        }
-
-        console.log('추출된 상품 목록:', items);
-        return items.slice(0, 10); // 최대 10개 상품만 반환
+        // Firebase AI 파싱
+        console.log('Firebase AI 파싱 시도...');
+        const aiParsedResult = await firebaseAiOcrService.parseReceiptWithAI(ocrText);
+        
+        // AI 파싱 결과를 기존 형식으로 변환
+        return {
+            storeName: aiParsedResult.storeName || 'Unknown Store',
+            date: aiParsedResult.date || new Date().toISOString().split('T')[0],
+            time: aiParsedResult.time || '00:00',
+            total: aiParsedResult.totalAmount || 0,
+            items: aiParsedResult.items.map(item => ({
+                name: item.name || 'Unknown Item',
+                price: item.totalPrice || 0,
+                quantity: item.quantity || 1,
+                janCode: item.janCode || undefined
+            })),
+            confidence: 0.95 // AI 파싱의 경우 높은 신뢰도
+        };
     }
 }
 

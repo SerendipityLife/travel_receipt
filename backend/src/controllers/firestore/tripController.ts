@@ -85,7 +85,7 @@ export const createNewTrip = async (req: RequestWithUser, res: Response) => {
             members: [{
                 userId,
                 name: req.user?.name || 'Unknown',
-                avatar: req.user?.avatar,
+                avatar: req.user?.avatar || null,
                 role: 'owner',
                 joinedAt: Timestamp.now()
             }],
@@ -220,7 +220,7 @@ export const addTripMember = async (req: RequestWithUser, res: Response) => {
         const newMember = {
             userId: memberId,
             name: memberName,
-            avatar: memberAvatar,
+            avatar: memberAvatar || null,
             role: 'member' as const,
             joinedAt: Timestamp.now()
         };

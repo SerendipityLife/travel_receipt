@@ -1,52 +1,41 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
-import { getStorage } from 'firebase-admin/storage';
+import admin from 'firebase-admin';
 
-// Firebase Admin SDK 초기화
+// Firebase Admin SDK 초기화 함수
 const initializeFirebaseAdmin = () => {
-    if (getApps().length === 0) {
-        // 서비스 계정 키 파일 경로 또는 환경 변수에서 설정
-        const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-            ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
-            : undefined;
+    if (!admin.apps.length) {
+        let credential;
 
-        if (serviceAccount) {
-            initializeApp({
-                credential: cert(serviceAccount),
-                storageBucket: process.env.FIREBASE_STORAGE_BUCKET
-            });
+        // 서비스 계정 키가 환경 변수에 있는 경우
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            try {
+                const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+                credential = admin.credential.cert(serviceAccount);
+            } catch (error) {
+                console.error('서비스 계정 키 파싱 오류:', error);
+                credential = admin.credential.applicationDefault();
+            }
         } else {
-            // 개발 환경에서는 기본 인증 사용 (GOOGLE_APPLICATION_CREDENTIALS 환경 변수)
-            initializeApp({
-                storageBucket: process.env.FIREBASE_STORAGE_BUCKET
-            });
+            credential = admin.credential.applicationDefault();
         }
 
-        // Firestore 설정 (한 번만 호출)
-        const db = getFirestore();
-        db.settings({
-            ignoreUndefinedProperties: true
+        admin.initializeApp({
+            credential,
+            projectId: process.env.FIREBASE_PROJECT_ID,
         });
+
+        // Firestore 설정 (초기화 직후에만 가능)
+        const db = admin.firestore();
+        db.settings({ ignoreUndefinedProperties: true });
     }
+    return admin;
 };
 
-// Firestore 데이터베이스 초기화
+// Firestore 데이터베이스 인스턴스 반환 함수
 export const getFirestoreDB = () => {
-    initializeFirebaseAdmin();
-    return getFirestore();
-};
-
-// Firebase Auth 초기화
-export const getFirebaseAuth = () => {
-    initializeFirebaseAdmin();
-    return getAuth();
-};
-
-// Firebase Storage 초기화
-export const getFirebaseStorage = () => {
-    initializeFirebaseAdmin();
-    return getStorage();
+    if (!admin.apps.length) {
+        initializeFirebaseAdmin();
+    }
+    return admin.firestore();
 };
 
 export default initializeFirebaseAdmin;
